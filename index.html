@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hydrogen.ai — Math Worksheet Studio</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- MathJax for LaTeX typesetting -->
+    <script>
+        window.MathJax = {
+            tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] },
+            svg: { fontCache: 'global' }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+    <style>
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            color: #1e293b;
+            /* Math doodle tiled background using bg.jpeg */
+            background-color: #f8fafc;
+            background-image: url('bg.jpeg');
+            background-repeat: repeat;
+            background-size: 420px;
+            background-attachment: fixed;
+        }
+
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+
+        /* Frosted Glass Floating Panels */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.88);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid rgba(226, 232, 240, 0.9);
+            box-shadow: 0 20px 45px -15px rgba(37, 99, 235, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
+        }
+
+        .paper-sheet {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.12), 0 0 0 1px rgba(226, 232, 240, 0.8);
+        }
+
+        /* Clean Print Output */
+        @media print {
+            body { background: #ffffff !important; color: #000000 !important; background-image: none !important; }
+            .no-print, header, footer, form, #formContainer, .no-print * { display: none !important; }
+            main { padding: 0 !important; margin: 0 !important; max-width: 100% !important; }
+            .paper-sheet {
+                background: #ffffff !important;
+                color: #000000 !important;
+                border: none !important;
+                box-shadow: none !important;
+                padding: 0 !important;
+            }
+            .paper-text-dark { color: #000000 !important; }
+            .paper-subtext { color: #475569 !important; }
+            .paper-border { border-color: #cbd5e1 !important; }
+            .solution-box { background: #f8fafc !important; color: #0f172a !important; border-left-color: #2563eb !important; }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between items-center p-4 sm:p-6 md:p-10 antialiased">
+
+    <!-- Top Navigation Header -->
+    <header class="w-full max-w-3xl glass-panel rounded-2xl px-5 py-3.5 flex items-center justify-between mb-8 no-print shadow-sm">
+        <div class="flex items-center space-x-3">
+            <div class="w-9 h-9 rounded-xl bg-blue-600 flex items-center justify-center font-bold text-white shadow-md shadow-blue-500/25 text-base">
+                Σ
+            </div>
+            <div>
+                <h1 class="text-base font-bold tracking-tight text-slate-900 flex items-center space-x-1">
+                    <span>Hydrogen</span><span class="text-blue-600">.ai</span>
+                </h1>
+                <p class="text-[11px] text-slate-500 font-medium">Math Worksheet & TikZ Geometry Studio</p>
+            </div>
+        </div>
+
+        <button onclick="window.print()" class="px-3.5 py-1.5 text-xs font-semibold bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 rounded-xl transition duration-150 flex items-center space-x-1.5 shadow-sm">
+            <span>🖨️</span>
+            <span>Print / PDF</span>
+        </button>
+    </header>
+
+    <!-- Centered Workspace Area -->
+    <main class="w-full max-w-3xl flex-1 flex flex-col items-center justify-center space-y-8 my-auto">
+
+        <!-- Generator Form Card -->
+        <div id="formContainer" class="w-full glass-panel rounded-3xl p-6 sm:p-8 no-print space-y-5">
+            <div class="flex items-center justify-between border-b border-slate-200/80 pb-3.5">
+                <div class="flex items-center space-x-2">
+                    <span class="w-2 h-2 rounded-full bg-blue-600 animate-pulse"></span>
+                    <span class="text-[11px] font-bold uppercase tracking-wider text-slate-700">Worksheet Generator</span>
+                </div>
+                <span class="text-xs text-slate-400 font-medium">CBSE / NCERT Standard</span>
+            </div>
+
+            <form id="worksheetForm" class="space-y-4">
+                
+                <!-- Topic Input -->
+                <div class="space-y-1.5">
+                    <label class="block text-xs font-semibold text-slate-700">Math Topic or Concept</label>
+                    <input type="text" id="topic" required placeholder="e.g., Quadrilaterals, Trigonometric Heights, Surface Areas..." 
+                           class="w-full px-4 py-2.5 rounded-xl bg-white/90 border border-slate-200 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-500/20 transition">
+                </div>
+
+                <!-- Quick Topic Suggestions -->
+                <div class="flex flex-wrap gap-1.5 items-center">
+                    <span class="text-[11px] font-medium text-slate-400 mr-1">Quick:</span>
+                    <button type="button" onclick="setTopic('Quadrilaterals and Parallelograms')" class="text-xs bg-white/80 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-200 text-slate-600 px-3 py-1 rounded-lg border border-slate-200 transition">Quadrilaterals</button>
+                    <button type="button" onclick="setTopic('Triangles and Similarity')" class="text-xs bg-white/80 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-200 text-slate-600 px-3 py-1 rounded-lg border border-slate-200 transition">Triangles</button>
+                    <button type="button" onclick="setTopic('Linear Equations in Two Variables')" class="text-xs bg-white/80 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-200 text-slate-600 px-3 py-1 rounded-lg border border-slate-200 transition">Linear Equations</button>
+                    <button type="button" onclick="setTopic('Surface Areas and Volumes')" class="text-xs bg-white/80 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-200 text-slate-600 px-3 py-1 rounded-lg border border-slate-200 transition">Mensuration 3D</button>
+                </div>
+
+                <!-- Parameters Grid -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-3 pt-2 border-t border-slate-200/80">
+                    <div>
+                        <label class="block text-xs font-medium text-slate-600 mb-1">Grade</label>
+                        <select id="grade_level" class="w-full px-3 py-2 rounded-xl bg-white/90 border border-slate-200 text-xs text-slate-800 focus:outline-none focus:border-blue-600">
+                            <option value="8">Grade 8</option>
+                            <option value="9">Grade 9</option>
+                            <option value="10" selected>Grade 10</option>
+                            <option value="11">Grade 11</option>
+                            <option value="12">Grade 12</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-600 mb-1">Difficulty</label>
+                        <select id="difficulty" class="w-full px-3 py-2 rounded-xl bg-white/90 border border-slate-200 text-xs text-slate-800 focus:outline-none focus:border-blue-600">
+                            <option value="Easy">Easy</option>
+                            <option value="Medium" selected>Medium</option>
+                            <option value="Hard">Hard</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-600 mb-1">Style</label>
+                        <select id="question_type" class="w-full px-3 py-2 rounded-xl bg-white/90 border border-slate-200 text-xs text-slate-800 focus:outline-none focus:border-blue-600">
+                            <option value="Mixed" selected>Mixed</option>
+                            <option value="Word Problems">Word Problems</option>
+                            <option value="Calculation">Calculation</option>
+                            <option value="Conceptual">Conceptual</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-600 mb-1">Problems</label>
+                        <input type="number" id="num_problems" value="5" min="1" max="15" 
+                               class="w-full px-3 py-2 rounded-xl bg-white/90 border border-slate-200 text-xs text-slate-800 focus:outline-none focus:border-blue-600">
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="flex items-center justify-end pt-2">
+                    <button type="submit" id="generateBtn" class="w-full sm:w-auto px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-xl shadow-md shadow-blue-500/25 transition duration-150 flex items-center justify-center space-x-2">
+                        <span>Generate Worksheet</span>
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Loading Spinner -->
+        <div id="loading" class="hidden flex flex-col items-center justify-center py-8 space-y-3 no-print">
+            <div class="w-8 h-8 border-3 border-blue-200 border-t-blue-600 rounded-full animate-spin"></div>
+            <p class="text-xs text-slate-600 font-medium">Generating questions and rendering TikZ figures...</p>
+        </div>
+
+        <!-- Rendered Worksheet Window -->
+        <div id="resultsWrapper" class="w-full space-y-4 hidden">
+            
+            <!-- Controls Bar -->
+            <div class="flex items-center justify-between no-print px-1">
+                <div class="flex items-center space-x-1 bg-white/80 p-1 rounded-xl border border-slate-200 shadow-sm backdrop-blur">
+                    <button id="viewQuestionsBtn" onclick="switchView('questions')" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-blue-600 text-white shadow-sm transition">
+                        📄 Worksheet
+                    </button>
+                    <button id="viewAnswersBtn" onclick="switchView('answers')" class="px-3 py-1.5 text-xs font-medium rounded-lg text-slate-600 hover:text-slate-900 transition">
+                        ✔ Answer Key
+                    </button>
+                </div>
+            </div>
+
+            <!-- Crisp White Printable Paper Sheet -->
+            <div class="paper-sheet rounded-3xl p-6 sm:p-10 md:p-12 text-slate-900">
+                
+                <!-- Paper Header -->
+                <div class="border-b border-slate-200 pb-6 mb-8 paper-border">
+                    <div class="flex flex-col sm:flex-row justify-between items-start gap-4">
+                        <div>
+                            <div class="flex items-center space-x-2 mb-1">
+                                <span class="text-blue-600 font-bold text-sm">Σ</span>
+                                <span class="text-[10px] font-bold uppercase tracking-widest text-slate-400 paper-subtext">HYDROGEN WORKSHEET</span>
+                            </div>
+                            <h2 id="sheetTopicHeader" class="text-2xl font-bold text-slate-900 tracking-tight paper-text-dark">Quadrilaterals</h2>
+                            <p id="sheetMetaHeader" class="text-xs text-slate-500 mt-0.5 paper-subtext">Grade 10 • Practice Sheet</p>
+                        </div>
+                        
+                        <!-- Student Info Lines -->
+                        <div class="w-full sm:w-auto text-left sm:text-right space-y-2 text-xs text-slate-500 paper-subtext pt-2 sm:pt-0">
+                            <div class="flex items-center sm:justify-end space-x-2">
+                                <span class="font-medium">Name:</span>
+                                <span class="inline-block border-b border-slate-300 w-32 paper-border"></span>
+                            </div>
+                            <div class="flex items-center sm:justify-end space-x-2">
+                                <span class="font-medium">Date:</span>
+                                <span class="inline-block border-b border-slate-300 w-28 paper-border"></span>
+                            </div>
+                            <div class="flex items-center sm:justify-end space-x-2">
+                                <span class="font-medium">Score:</span>
+                                <span class="inline-block border-b border-slate-300 w-20 paper-border"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Questions Container -->
+                <div id="questionsContainer" class="space-y-8"></div>
+
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="w-full max-w-3xl glass-panel rounded-xl px-5 py-3 flex items-center justify-between text-xs text-slate-500 mt-12 no-print shadow-sm">
+        <span class="font-medium">Hydrogen.ai</span>
+        <span>MathJax • TikZJax • FastAPI</span>
+    </footer>
+
+    <!-- Frontend Logic -->
+    <script>
+        // Exact Render URL
+        const BACKEND_URL = "https://my-math.onrender.com/";
+        // Normalizes URL so double-slashes do not cause 404s
+        const API_ENDPOINT = BACKEND_URL.replace(/\/+$/, '') + "/generate";
+
+        function setTopic(name) {
+            document.getElementById('topic').value = name;
+        }
+
+        function switchView(mode) {
+            const qBtn = document.getElementById('viewQuestionsBtn');
+            const aBtn = document.getElementById('viewAnswersBtn');
+            const solutionToggles = document.querySelectorAll('.solution-toggle');
+
+            if (mode === 'questions') {
+                qBtn.className = "px-3 py-1.5 text-xs font-semibold rounded-lg bg-blue-600 text-white shadow-sm transition";
+                aBtn.className = "px-3 py-1.5 text-xs font-medium rounded-lg text-slate-600 hover:text-slate-900 transition";
+                solutionToggles.forEach(el => el.removeAttribute('open'));
+            } else {
+                aBtn.className = "px-3 py-1.5 text-xs font-semibold rounded-lg bg-blue-600 text-white shadow-sm transition";
+                qBtn.className = "px-3 py-1.5 text-xs font-medium rounded-lg text-slate-600 hover:text-slate-900 transition";
+                solutionToggles.forEach(el => el.setAttribute('open', 'true'));
+            }
+        }
+
+        document.getElementById('worksheetForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const topic = document.getElementById('topic').value.trim();
+            const grade_level = parseInt(document.getElementById('grade_level').value);
+            const num_problems = parseInt(document.getElementById('num_problems').value);
+            const difficulty = document.getElementById('difficulty').value;
+            const question_type = document.getElementById('question_type').value;
+
+            const loadingEl = document.getElementById('loading');
+            const resultsWrapper = document.getElementById('resultsWrapper');
+            const generateBtn = document.getElementById('generateBtn');
+
+            loadingEl.classList.remove('hidden');
+            resultsWrapper.classList.add('hidden');
+            generateBtn.disabled = true;
+
+            try {
+                const response = await fetch(API_ENDPOINT, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        grade_level,
+                        topic,
+                        num_problems,
+                        difficulty,
+                        question_type,
+                        worksheet_type: "Assignment"
+                    })
+                });
+
+                if (!response.ok) {
+                    const errData = await response.json().catch(() => ({}));
+                    throw new Error(errData.detail || `Server returned error status ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                document.getElementById('sheetTopicHeader').innerText = topic;
+                document.getElementById('sheetMetaHeader').innerText = `Grade ${grade_level} • ${difficulty} • ${num_problems} Questions`;
+
+                renderWorksheet(data.worksheet);
+                resultsWrapper.classList.remove('hidden');
+
+            } catch (err) {
+                alert("Error: " + err.message);
+            } finally {
+                loadingEl.classList.add('hidden');
+                generateBtn.disabled = false;
+            }
+        });
+
+        function renderWorksheet(problems) {
+            const container = document.getElementById('questionsContainer');
+            container.innerHTML = '';
+
+            problems.forEach((item, index) => {
+                const qNum = String(index + 1).padStart(2, '0');
+                let probText = item.problem_text;
+
+                // Render TikZ cleanly inside light sandboxed iframes
+                probText = probText.replace(/<script type="text\/tikz">([\s\S]*?)<\/script>/g, (match, tikzCode) => {
+                    const iframeDoc = `
+                        <!DOCTYPE html>
+                        <html>
+                        <head>
+                            <script type="text/javascript" src="https://tikzjax.com/v1/tikzjax.js"><\/script>
+                            <style>
+                                body { margin: 0; display: flex; justify-content: center; align-items: center; background: transparent; }
+                                svg text { fill: #0f172a; }
+                            </style>
+                        </head>
+                        <body>
+                            <script type="text/tikz">
+                                ${tikzCode}
+                            <\/script>
+                        </body>
+                        </html>
+                    `;
+                    const encodedIframe = encodeURIComponent(iframeDoc);
+                    return `
+                        <div class="flex justify-center my-4">
+                            <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 max-w-md w-full flex justify-center shadow-inner">
+                                <iframe src="data:text/html;charset=utf-8,${encodedIframe}" style="width:100%; height:200px; border:none;" scrolling="no"></iframe>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                const problemDiv = document.createElement('div');
+                problemDiv.className = "space-y-3 pt-6 first:pt-0 border-t border-slate-200 first:border-0";
+                problemDiv.innerHTML = `
+                    <div class="flex items-start space-x-3.5 text-sm md:text-base leading-relaxed">
+                        <span class="font-mono font-bold text-blue-600 text-sm select-none">${qNum}</span>
+                        <div class="text-slate-900 paper-text-dark flex-1 font-medium">${probText}</div>
+                    </div>
+                    
+                    <details class="solution-toggle group no-print">
+                        <summary class="cursor-pointer text-xs font-semibold text-slate-500 hover:text-blue-600 select-none transition">
+                            › Show solution
+                        </summary>
+                        <div class="solution-box mt-2.5 p-3.5 bg-slate-50 rounded-xl border-l-2 border-blue-600 text-xs text-slate-700 leading-relaxed font-mono">
+                            ${item.solution_text}
+                        </div>
+                    </details>
+                `;
+
+                container.appendChild(problemDiv);
+            });
+
+            if (window.MathJax) {
+                MathJax.typesetPromise();
+            }
+        }
+    </script>
+</body>
+</html>
