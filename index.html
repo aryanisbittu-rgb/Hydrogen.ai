@@ -58,10 +58,17 @@
             box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.05);
         }
 
-        /* SVG responsiveness */
+        /* SVG & Diagram Styling - Clean Copying & Scaling */
         svg {
             max-width: 100% !important;
             height: auto !important;
+            user-select: all !important;
+        }
+
+        /* Ensure texts and problems are fully copyable */
+        .copy-selectable {
+            user-select: text !important;
+            -webkit-user-select: text !important;
         }
 
         /* Clean Print Output */
@@ -79,6 +86,12 @@
             }
             .paper-border { border-color: #cbd5e1 !important; }
             .solution-box { background: #f8fafc !important; color: #0f172a !important; border-left-color: #7c3aed !important; }
+            svg {
+                display: block !important;
+                visibility: visible !important;
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
+            }
         }
     </style>
 </head>
@@ -180,7 +193,6 @@
         <!-- Top App Bar -->
         <header class="h-14 bg-white border-b border-slate-200 flex items-center justify-between px-4 sm:px-6 flex-shrink-0 z-10 no-print">
             <div class="flex items-center space-x-2 sm:space-x-3">
-                <!-- Mobile Hamburger Button -->
                 <button onclick="toggleSidebar()" class="md:hidden p-1.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"/></svg>
                 </button>
@@ -234,7 +246,7 @@
                 </div>
 
                 <!-- Printable Paper Sheet Card -->
-                <div id="printableSheet" class="paper-sheet rounded-2xl p-4 sm:p-8 md:p-12 text-slate-900 w-full overflow-hidden">
+                <div id="printableSheet" class="paper-sheet rounded-2xl p-4 sm:p-8 md:p-12 text-slate-900 w-full overflow-hidden copy-selectable">
                     
                     <!-- Paper Header -->
                     <div class="border-b border-slate-200 pb-5 mb-6 paper-border">
@@ -278,13 +290,13 @@
                         <div class="problem-item space-y-3 pt-4 sm:pt-6 first:pt-0 border-t border-slate-200/80 first:border-0">
                             <div class="flex items-start space-x-2.5 sm:space-x-3.5 text-sm md:text-base leading-relaxed">
                                 <span class="font-mono font-bold text-slate-400 text-xs sm:text-sm select-none">01</span>
-                                <div class="text-slate-900 flex-1 break-words">
+                                <div class="text-slate-900 flex-1 break-words copy-selectable">
                                     In parallelogram $ABCD$, base $AB = 9\text{ cm}$ and perpendicular height from $D$ to $AB$ is $7\text{ cm}$. Calculate the area of parallelogram $ABCD$.
                                 </div>
                             </div>
-                            <div class="flex justify-center my-3 sm:my-4">
+                            <div class="diagram-box flex justify-center my-3 sm:my-4">
                                 <div class="bg-slate-50 p-2 sm:p-4 rounded-xl border border-slate-200 max-w-xs sm:max-w-sm w-full flex justify-center overflow-hidden">
-                                    <svg viewBox="0 0 260 130" class="w-full max-w-[240px] sm:max-w-[260px] h-auto">
+                                    <svg viewBox="0 0 260 130" class="w-full max-w-[240px] sm:max-w-[260px] h-auto cursor-pointer">
                                         <polygon points="50,105 195,105 225,30 80,30" fill="rgba(124, 58, 237, 0.05)" stroke="#7C3AED" stroke-width="2"/>
                                         <line x1="80" y1="30" x2="80" y2="105" stroke="#EF4444" stroke-width="1.5" stroke-dasharray="4,4"/>
                                         <rect x="80" y="97" width="8" height="8" fill="none" stroke="#EF4444" stroke-width="1"/>
@@ -299,7 +311,7 @@
                             </div>
                             <details class="solution-toggle group no-print">
                                 <summary class="cursor-pointer text-xs font-semibold text-slate-500 hover:text-brand-600 select-none transition">› Show solution</summary>
-                                <div class="solution-box mt-2 p-3 bg-slate-50 rounded-xl border-l-2 border-brand-600 text-xs text-slate-800 leading-relaxed font-mono overflow-x-auto">
+                                <div class="solution-box mt-2 p-3 bg-slate-50 rounded-xl border-l-2 border-brand-600 text-xs text-slate-800 leading-relaxed font-mono overflow-x-auto copy-selectable">
                                     $\text{Area} = \text{base} \times \text{height} = 9 \times 7 = 63\text{ cm}^2$
                                 </div>
                             </details>
@@ -309,13 +321,13 @@
                         <div class="problem-item space-y-3 pt-4 sm:pt-6 border-t border-slate-200/80">
                             <div class="flex items-start space-x-2.5 sm:space-x-3.5 text-sm md:text-base leading-relaxed">
                                 <span class="font-mono font-bold text-slate-400 text-xs sm:text-sm select-none">02</span>
-                                <div class="text-slate-900 flex-1 break-words">
+                                <div class="text-slate-900 flex-1 break-words copy-selectable">
                                     Find the roots of the quadratic equation $2x^2 - 5x + 3 = 0$ using the quadratic formula.
                                 </div>
                             </div>
                             <details class="solution-toggle group no-print">
                                 <summary class="cursor-pointer text-xs font-semibold text-slate-500 hover:text-brand-600 select-none transition">› Show solution</summary>
-                                <div class="solution-box mt-2 p-3 bg-slate-50 rounded-xl border-l-2 border-brand-600 text-xs text-slate-800 leading-relaxed font-mono overflow-x-auto">
+                                <div class="solution-box mt-2 p-3 bg-slate-50 rounded-xl border-l-2 border-brand-600 text-xs text-slate-800 leading-relaxed font-mono overflow-x-auto copy-selectable">
                                     Discriminant $D = b^2 - 4ac = (-5)^2 - 4(2)(3) = 25 - 24 = 1$<br>
                                     $x = \frac{-b \pm \sqrt{D}}{2a} = \frac{5 \pm 1}{4}$<br>
                                     $x_1 = \frac{6}{4} = \frac{3}{2}$, and $x_2 = \frac{4}{4} = 1$
@@ -327,13 +339,13 @@
                         <div class="problem-item space-y-3 pt-4 sm:pt-6 border-t border-slate-200/80">
                             <div class="flex items-start space-x-2.5 sm:space-x-3.5 text-sm md:text-base leading-relaxed">
                                 <span class="font-mono font-bold text-slate-400 text-xs sm:text-sm select-none">03</span>
-                                <div class="text-slate-900 flex-1 break-words">
+                                <div class="text-slate-900 flex-1 break-words copy-selectable">
                                     A tower stands vertically on the ground. From a point on the ground $30\text{ m}$ away from the foot of the tower, the angle of elevation of its top is $30^\circ$. Find the height of the tower.
                                 </div>
                             </div>
-                            <div class="flex justify-center my-3 sm:my-4">
+                            <div class="diagram-box flex justify-center my-3 sm:my-4">
                                 <div class="bg-slate-50 p-2 sm:p-4 rounded-xl border border-slate-200 max-w-xs sm:max-w-sm w-full flex justify-center overflow-hidden">
-                                    <svg viewBox="0 0 240 120" class="w-full max-w-[220px] sm:max-w-[240px] h-auto">
+                                    <svg viewBox="0 0 240 120" class="w-full max-w-[220px] sm:max-w-[240px] h-auto cursor-pointer">
                                         <line x1="30" y1="100" x2="200" y2="100" stroke="#64748B" stroke-width="2"/>
                                         <line x1="200" y1="100" x2="200" y2="20" stroke="#7C3AED" stroke-width="2.5"/>
                                         <line x1="30" y1="100" x2="200" y2="20" stroke="#2563EB" stroke-width="1.5" stroke-dasharray="3,3"/>
@@ -349,7 +361,7 @@
                             </div>
                             <details class="solution-toggle group no-print">
                                 <summary class="cursor-pointer text-xs font-semibold text-slate-500 hover:text-brand-600 select-none transition">› Show solution</summary>
-                                <div class="solution-box mt-2 p-3 bg-slate-50 rounded-xl border-l-2 border-brand-600 text-xs text-slate-800 leading-relaxed font-mono overflow-x-auto">
+                                <div class="solution-box mt-2 p-3 bg-slate-50 rounded-xl border-l-2 border-brand-600 text-xs text-slate-800 leading-relaxed font-mono overflow-x-auto copy-selectable">
                                     $\tan(30^\circ) = \frac{\text{Height}}{30} \implies \frac{1}{\sqrt{3}} = \frac{h}{30} \implies h = \frac{30}{\sqrt{3}} = 10\sqrt{3}\text{ m} \approx 17.32\text{ m}$
                                 </div>
                             </details>
@@ -359,16 +371,119 @@
                         <div class="problem-item space-y-3 pt-4 sm:pt-6 border-t border-slate-200/80">
                             <div class="flex items-start space-x-2.5 sm:space-x-3.5 text-sm md:text-base leading-relaxed">
                                 <span class="font-mono font-bold text-slate-400 text-xs sm:text-sm select-none">04</span>
-                                <div class="text-slate-900 flex-1 break-words">
+                                <div class="text-slate-900 flex-1 break-words copy-selectable">
                                     Determine the $15^{\text{th}}$ term of the AP: $3, 7, 11, 15, \dots$, and find the sum of its first $15$ terms.
                                 </div>
                             </div>
                             <details class="solution-toggle group no-print">
                                 <summary class="cursor-pointer text-xs font-semibold text-slate-500 hover:text-brand-600 select-none transition">› Show solution</summary>
-                                <div class="solution-box mt-2 p-3 bg-slate-50 rounded-xl border-l-2 border-brand-600 text-xs text-slate-800 leading-relaxed font-mono overflow-x-auto">
+                                <div class="solution-box mt-2 p-3 bg-slate-50 rounded-xl border-l-2 border-brand-600 text-xs text-slate-800 leading-relaxed font-mono overflow-x-auto copy-selectable">
                                     $a = 3, d = 4$<br>
                                     $a_{15} = 3 + 14(4) = 59$<br>
                                     $S_{15} = \frac{15}{2}(3 + 59) = 15 \times 31 = 465$
+                                </div>
+                            </details>
+                        </div>
+
+                        <!-- Problem 05 -->
+                        <div class="problem-item space-y-3 pt-4 sm:pt-6 border-t border-slate-200/80">
+                            <div class="flex items-start space-x-2.5 sm:space-x-3.5 text-sm md:text-base leading-relaxed">
+                                <span class="font-mono font-bold text-slate-400 text-xs sm:text-sm select-none">05</span>
+                                <div class="text-slate-900 flex-1 break-words copy-selectable">
+                                    Find the coordinates of the point which divides the line segment joining $A(-1, 7)$ and $B(4, -3)$ internally in the ratio $2:3$.
+                                </div>
+                            </div>
+                            <details class="solution-toggle group no-print">
+                                <summary class="cursor-pointer text-xs font-semibold text-slate-500 hover:text-brand-600 select-none transition">› Show solution</summary>
+                                <div class="solution-box mt-2 p-3 bg-slate-50 rounded-xl border-l-2 border-brand-600 text-xs text-slate-800 leading-relaxed font-mono overflow-x-auto copy-selectable">
+                                    $(x, y) = \left(\frac{2(4) + 3(-1)}{5}, \frac{2(-3) + 3(7)}{5}\right) = \left(\frac{5}{5}, \frac{15}{5}\right) = (1, 3)$
+                                </div>
+                            </details>
+                        </div>
+
+                        <!-- Problem 06 -->
+                        <div class="problem-item space-y-3 pt-4 sm:pt-6 border-t border-slate-200/80">
+                            <div class="flex items-start space-x-2.5 sm:space-x-3.5 text-sm md:text-base leading-relaxed">
+                                <span class="font-mono font-bold text-slate-400 text-xs sm:text-sm select-none">06</span>
+                                <div class="text-slate-900 flex-1 break-words copy-selectable">
+                                    Solve the system of linear equations by elimination:
+                                    <div class="my-1 font-mono text-xs sm:text-sm">$3x + 4y = 10$ and $2x - 2y = 2$</div>
+                                </div>
+                            </div>
+                            <details class="solution-toggle group no-print">
+                                <summary class="cursor-pointer text-xs font-semibold text-slate-500 hover:text-brand-600 select-none transition">› Show solution</summary>
+                                <div class="solution-box mt-2 p-3 bg-slate-50 rounded-xl border-l-2 border-brand-600 text-xs text-slate-800 leading-relaxed font-mono overflow-x-auto copy-selectable">
+                                    Multiply second by 2: $4x - 4y = 4$. Adding gives $7x = 14 \implies x = 2$.<br>
+                                    Substitute $x = 2$: $3(2) + 4y = 10 \implies 4y = 4 \implies y = 1$. Solution: $(2, 1)$
+                                </div>
+                            </details>
+                        </div>
+
+                        <!-- Problem 07 -->
+                        <div class="problem-item space-y-3 pt-4 sm:pt-6 border-t border-slate-200/80">
+                            <div class="flex items-start space-x-2.5 sm:space-x-3.5 text-sm md:text-base leading-relaxed">
+                                <span class="font-mono font-bold text-slate-400 text-xs sm:text-sm select-none">07</span>
+                                <div class="text-slate-900 flex-1 break-words copy-selectable">
+                                    A solid cylinder has base radius $r = 7\text{ cm}$ and height $h = 10\text{ cm}$. Calculate its total surface area and volume. (Take $\pi = \frac{22}{7}$)
+                                </div>
+                            </div>
+                            <details class="solution-toggle group no-print">
+                                <summary class="cursor-pointer text-xs font-semibold text-slate-500 hover:text-brand-600 select-none transition">› Show solution</summary>
+                                <div class="solution-box mt-2 p-3 bg-slate-50 rounded-xl border-l-2 border-brand-600 text-xs text-slate-800 leading-relaxed font-mono overflow-x-auto copy-selectable">
+                                    $\text{TSA} = 2\pi r(r + h) = 2 \times \frac{22}{7} \times 7 \times (17) = 748\text{ cm}^2$<br>
+                                    $\text{Volume} = \pi r^2 h = \frac{22}{7} \times 49 \times 10 = 1540\text{ cm}^3$
+                                </div>
+                            </details>
+                        </div>
+
+                        <!-- Problem 08 -->
+                        <div class="problem-item space-y-3 pt-4 sm:pt-6 border-t border-slate-200/80">
+                            <div class="flex items-start space-x-2.5 sm:space-x-3.5 text-sm md:text-base leading-relaxed">
+                                <span class="font-mono font-bold text-slate-400 text-xs sm:text-sm select-none">08</span>
+                                <div class="text-slate-900 flex-1 break-words copy-selectable">
+                                    A tangent $PQ$ at point $P$ of a circle of radius $5\text{ cm}$ meets line through center $O$ at $Q$ such that $OQ = 12\text{ cm}$. Find the length of $PQ$.
+                                </div>
+                            </div>
+                            <details class="solution-toggle group no-print">
+                                <summary class="cursor-pointer text-xs font-semibold text-slate-500 hover:text-brand-600 select-none transition">› Show solution</summary>
+                                <div class="solution-box mt-2 p-3 bg-slate-50 rounded-xl border-l-2 border-brand-600 text-xs text-slate-800 leading-relaxed font-mono overflow-x-auto copy-selectable">
+                                    Since $OP \perp PQ$, $\triangle OPQ$ is right-angled at $P$.<br>
+                                    $PQ = \sqrt{OQ^2 - OP^2} = \sqrt{12^2 - 5^2} = \sqrt{144 - 25} = \sqrt{119}\text{ cm} \approx 10.91\text{ cm}$
+                                </div>
+                            </details>
+                        </div>
+
+                        <!-- Problem 09 -->
+                        <div class="problem-item space-y-3 pt-4 sm:pt-6 border-t border-slate-200/80">
+                            <div class="flex items-start space-x-2.5 sm:space-x-3.5 text-sm md:text-base leading-relaxed">
+                                <span class="font-mono font-bold text-slate-400 text-xs sm:text-sm select-none">09</span>
+                                <div class="text-slate-900 flex-1 break-words copy-selectable">
+                                    If $\sin\theta + \cos\theta = \sqrt{2}\cos\theta$, prove that $\cos\theta - \sin\theta = \sqrt{2}\sin\theta$.
+                                </div>
+                            </div>
+                            <details class="solution-toggle group no-print">
+                                <summary class="cursor-pointer text-xs font-semibold text-slate-500 hover:text-brand-600 select-none transition">› Show solution</summary>
+                                <div class="solution-box mt-2 p-3 bg-slate-50 rounded-xl border-l-2 border-brand-600 text-xs text-slate-800 leading-relaxed font-mono overflow-x-auto copy-selectable">
+                                    $\sin\theta = (\sqrt{2} - 1)\cos\theta$. Multiply by $(\sqrt{2} + 1)$:<br>
+                                    $(\sqrt{2} + 1)\sin\theta = (2 - 1)\cos\theta = \cos\theta \implies \cos\theta - \sin\theta = \sqrt{2}\sin\theta$.
+                                </div>
+                            </details>
+                        </div>
+
+                        <!-- Problem 10 -->
+                        <div class="problem-item space-y-3 pt-4 sm:pt-6 border-t border-slate-200/80">
+                            <div class="flex items-start space-x-2.5 sm:space-x-3.5 text-sm md:text-base leading-relaxed">
+                                <span class="font-mono font-bold text-slate-400 text-xs sm:text-sm select-none">10</span>
+                                <div class="text-slate-900 flex-1 break-words copy-selectable">
+                                    Two dice are thrown together. Find the probability of getting: (i) A doublet, and (ii) A sum greater than 9.
+                                </div>
+                            </div>
+                            <details class="solution-toggle group no-print">
+                                <summary class="cursor-pointer text-xs font-semibold text-slate-500 hover:text-brand-600 select-none transition">› Show solution</summary>
+                                <div class="solution-box mt-2 p-3 bg-slate-50 rounded-xl border-l-2 border-brand-600 text-xs text-slate-800 leading-relaxed font-mono overflow-x-auto copy-selectable">
+                                    Total outcomes $= 36$.<br>
+                                    (i) Doublets: $\{(1,1),(2,2),(3,3),(4,4),(5,5),(6,6)\} \implies P = \frac{6}{36} = \frac{1}{6}$<br>
+                                    (ii) Sum > 9: 6 outcomes $\{(4,6),(5,5),(6,4),(5,6),(6,5),(6,6)\} \implies P = \frac{6}{36} = \frac{1}{6}$
                                 </div>
                             </details>
                         </div>
@@ -383,7 +498,7 @@
     </div>
 
     <!-- ========================================== -->
-    <!-- NEW WORKSHEET MODAL DIALOG (Responsive)   -->
+    <!-- NEW WORKSHEET MODAL DIALOG                 -->
     <!-- ========================================== -->
     <div id="modalOverlay" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4 hidden modal-backdrop no-print">
         <div class="bg-white border border-slate-200 rounded-2xl w-full max-w-lg p-5 sm:p-6 space-y-4 shadow-2xl relative max-h-[90vh] overflow-y-auto">
@@ -410,7 +525,6 @@
                            class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-brand-600 focus:bg-white transition">
                 </div>
 
-                <!-- Quick Topic Buttons -->
                 <div class="flex flex-wrap gap-1.5">
                     <button type="button" onclick="setTopic('Quadrilaterals and Parallelograms')" class="text-[11px] bg-slate-100 hover:bg-brand-50 hover:text-brand-700 text-slate-600 px-2.5 py-1 rounded-lg transition">Quadrilaterals</button>
                     <button type="button" onclick="setTopic('Triangles and Similarity')" class="text-[11px] bg-slate-100 hover:bg-brand-50 hover:text-brand-700 text-slate-600 px-2.5 py-1 rounded-lg transition">Triangles</button>
@@ -467,7 +581,7 @@
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-slate-600 mb-1">Problems</label>
-                        <input type="number" id="numProblemsInput" value="5" min="1" max="15" 
+                        <input type="number" id="numProblemsInput" value="10" min="1" max="15" 
                                class="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-800 focus:outline-none focus:border-brand-600">
                     </div>
                 </div>
@@ -494,7 +608,7 @@
             <button onclick="toggleTutor()" class="text-slate-400 hover:text-slate-600 text-sm font-bold p-1">✕</button>
         </div>
         
-        <div id="chatMessages" class="flex-1 overflow-y-auto p-4 space-y-3 bg-white text-xs">
+        <div id="chatMessages" class="flex-1 overflow-y-auto p-4 space-y-3 bg-white text-xs copy-selectable">
             <div class="bg-brand-50 text-brand-800 p-3 rounded-2xl border border-brand-100 leading-relaxed">
                 Hi! I'm your math tutor. Ask me about any problem or step on this worksheet!
             </div>
@@ -563,6 +677,7 @@
             }
         }
 
+        // Full Print Pipeline with Direct SVG Extraction
         function triggerMobileSafePrint() {
             if (document.activeElement && typeof document.activeElement.blur === 'function') {
                 document.activeElement.blur();
@@ -575,16 +690,21 @@
             const originalIframes = sheetElement.querySelectorAll('iframe');
             const clonedIframes = sheetClone.querySelectorAll('iframe');
 
+            // Pull live rendered SVG out of dynamic iframes into clean markup
             originalIframes.forEach((origIframe, index) => {
                 try {
                     const iframeDoc = origIframe.contentDocument || origIframe.contentWindow.document;
                     const svgElem = iframeDoc ? iframeDoc.querySelector('svg') : null;
                     if (svgElem && clonedIframes[index]) {
-                        const clonedContainer = clonedIframes[index].parentNode;
-                        clonedContainer.innerHTML = '';
-                        clonedContainer.appendChild(svgElem.cloneNode(true));
+                        const parentBox = clonedIframes[index].closest('.diagram-box') || clonedIframes[index].parentNode;
+                        const svgClone = svgElem.cloneNode(true);
+                        svgClone.setAttribute('style', 'max-width: 100%; height: auto; display: block; margin: 10px auto;');
+                        parentBox.innerHTML = '';
+                        parentBox.appendChild(svgClone);
                     }
-                } catch (e) {}
+                } catch (e) {
+                    console.warn("Could not inline iframe SVG for print:", e);
+                }
             });
 
             const printWindow = window.open('', '_blank');
@@ -600,14 +720,46 @@
                 <head>
                     <title>Worksheet - Hydrogen.ai</title>
                     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <script>
+                        window.MathJax = {
+                            tex: { inlineMath: [['$', '$'], ['\\\\(', '\\\\)']] },
+                            svg: { fontCache: 'global' }
+                        };
+                    <\/script>
+                    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"><\/script>
                     <style>
-                        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 10mm; color: #000; background: #fff; }
-                        .paper-border { border-bottom: 1px solid #cbd5e1; margin-bottom: 16px; padding-bottom: 12px; }
-                        .problem-item { page-break-inside: avoid; break-inside: avoid; margin-bottom: 20px; }
+                        @page { margin: 15mm; size: auto; }
+                        body {
+                            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+                            margin: 0;
+                            padding: 10px;
+                            color: #000000;
+                            background: #ffffff;
+                            -webkit-print-color-adjust: exact !important;
+                            print-color-adjust: exact !important;
+                        }
+                        .paper-sheet { border: none !important; box-shadow: none !important; padding: 0 !important; width: 100% !important; }
+                        .paper-border { border-bottom: 1px solid #cbd5e1; margin-bottom: 20px; padding-bottom: 15px; }
+                        .problem-item { page-break-inside: avoid !important; break-inside: avoid !important; margin-bottom: 22px; }
                         details { display: block; }
                         summary { display: none !important; }
-                        .solution-box { display: block !important; margin-top: 6px; padding: 8px; background: #f8fafc; border-left: 3px solid #7c3aed; font-size: 12px; font-family: monospace; }
-                        svg { max-width: 100%; height: auto; display: block; margin: 8px auto; }
+                        .solution-box {
+                            display: block !important;
+                            margin-top: 8px;
+                            padding: 8px 12px;
+                            background: #f8fafc !important;
+                            border-left: 3px solid #7c3aed !important;
+                            font-size: 12px;
+                            font-family: monospace;
+                        }
+                        svg {
+                            max-width: 100% !important;
+                            height: auto !important;
+                            display: block !important;
+                            margin: 10px auto !important;
+                            visibility: visible !important;
+                        }
+                        .no-print { display: none !important; }
                     </style>
                 </head>
                 <body>
@@ -621,9 +773,10 @@
                 printWindow.focus();
                 printWindow.print();
                 printWindow.close();
-            }, 300);
+            }, 600);
         }
 
+        // AI Tutor Chat Form
         document.getElementById('tutorForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const input = document.getElementById('tutorInput');
@@ -657,7 +810,7 @@
         function renderChat() {
             const container = document.getElementById('chatMessages');
             container.innerHTML = chatHistory.map(m => `
-                <div class="text-xs p-3 rounded-2xl ${m.role === 'user' ? 'bg-brand-600 text-white ml-6' : 'bg-slate-100 text-slate-800 mr-6'}">
+                <div class="text-xs p-3 rounded-2xl copy-selectable ${m.role === 'user' ? 'bg-brand-600 text-white ml-6' : 'bg-slate-100 text-slate-800 mr-6'}">
                     ${m.content}
                 </div>
             `).join('');
@@ -665,6 +818,7 @@
             if (window.MathJax) MathJax.typesetPromise();
         }
 
+        // Dynamic Worksheet Generation
         document.getElementById('generatorForm').addEventListener('submit', async (e) => {
             e.preventDefault();
 
@@ -734,14 +888,17 @@
                         <html>
                         <head>
                             <script type="text/javascript" src="https://tikzjax.com/v1/tikzjax.js"><\/script>
-                            <style>body { margin: 0; display: flex; justify-content: center; align-items: center; background: transparent; } svg { max-width: 100%; height: auto; }</style>
+                            <style>
+                                body { margin: 0; display: flex; justify-content: center; align-items: center; background: transparent; user-select: all; }
+                                svg { max-width: 100%; height: auto; user-select: all; }
+                            </style>
                         </head>
                         <body><script type="text/tikz">${tikzCode}<\/script></body>
                         </html>
                     `;
                     const encodedIframe = encodeURIComponent(iframeDoc);
                     return `
-                        <div class="flex justify-center my-3">
+                        <div class="diagram-box flex justify-center my-3">
                             <div class="bg-slate-50 p-2 sm:p-4 rounded-xl border border-slate-200 max-w-sm w-full flex justify-center">
                                 <iframe src="data:text/html;charset=utf-8,${encodedIframe}" style="width:100%; height:180px; border:none;" scrolling="no"></iframe>
                             </div>
@@ -754,14 +911,14 @@
                 problemDiv.innerHTML = `
                     <div class="flex items-start space-x-2.5 sm:space-x-3.5 text-sm md:text-base leading-relaxed">
                         <span class="font-mono font-bold text-slate-400 text-xs sm:text-sm select-none">${qNum}</span>
-                        <div class="text-slate-900 flex-1 break-words">${probText}</div>
+                        <div class="text-slate-900 flex-1 break-words copy-selectable">${probText}</div>
                     </div>
                     
                     <details class="solution-toggle group no-print">
                         <summary class="cursor-pointer text-xs font-semibold text-slate-500 hover:text-brand-600 select-none transition">
                             › Show solution
                         </summary>
-                        <div class="solution-box mt-2 p-3 bg-slate-50 rounded-xl border-l-2 border-brand-600 text-xs text-slate-800 leading-relaxed font-mono overflow-x-auto">
+                        <div class="solution-box mt-2 p-3 bg-slate-50 rounded-xl border-l-2 border-brand-600 text-xs text-slate-800 leading-relaxed font-mono overflow-x-auto copy-selectable">
                             ${item.solution_text}
                         </div>
                     </details>
