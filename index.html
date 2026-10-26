@@ -33,7 +33,7 @@
         }
     </script>
     
-    <!-- MathJax for LaTeX typesetting (configured so it never breaks SVGs) -->
+    <!-- MathJax Configuration: strictly isolated from SVG elements -->
     <script>
         window.MathJax = {
             tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] },
@@ -73,6 +73,7 @@
             -webkit-user-select: text !important;
         }
 
+        /* SVG responsiveness for phones */
         .diagram-box {
             display: flex;
             justify-content: center;
@@ -87,7 +88,7 @@
             overflow: visible;
         }
 
-        /* Fallback Print Styles */
+        /* Standard browser fallback print styles */
         @media print {
             @page {
                 size: A4 portrait;
@@ -314,7 +315,7 @@
                             <div>
                                 <div class="flex items-center space-x-2 mb-1">
                                     <svg class="w-4 h-4 text-brand-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <circle cx="12" cy="12" r="2.5" fill="currentColor"/>
+                                        <circle cx="12" cy="12" r="2" fill="currentColor"/>
                                         <ellipse cx="12" cy="12" rx="9" ry="3.5" transform="rotate(30 12 12)"/>
                                         <ellipse cx="12" cy="12" rx="9" ry="3.5" transform="rotate(90 12 12)"/>
                                         <ellipse cx="12" cy="12" rx="9" ry="3.5" transform="rotate(150 12 12)"/>
@@ -734,9 +735,9 @@
         }
 
         /* 
-           Safe Print Pipeline for Mobile & Desktop:
-           Creates a lightweight print document stripped of heavy UI libraries.
-           Enforces valid SVG dimensions and allows instant "Save as PDF".
+           Invisible Iframe Native Mobile Print Pipeline:
+           - Completely avoids popup blockers on Chrome/Safari Android & iOS.
+           - Pre-renders clean HTML so Android Print Spooler never freezes on "Select a printer".
         */
         function triggerMobileSafePrint() {
             if (document.activeElement && typeof document.activeElement.blur === 'function') {
@@ -753,36 +754,33 @@
                 return;
             }
 
-            const printContent = sheet.cloneNode(true);
-            printContent.querySelectorAll('.solution-toggle').forEach(el => el.remove());
+            // Remove existing print iframe if any
+            const existingFrame = document.getElementById('printIframe');
+            if (existingFrame) existingFrame.remove();
 
-            // Extract any SVGs inside iframes
-            printContent.querySelectorAll('.diagram-box iframe').forEach(iframe => {
-                try {
-                    const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
-                    const innerSvg = iframeDoc ? iframeDoc.querySelector('svg') : null;
-                    if (innerSvg) {
-                        const parent = iframe.parentElement;
-                        parent.innerHTML = '';
-                        parent.appendChild(innerSvg.cloneNode(true));
-                    }
-                } catch (e) {}
+            // Create hidden iframe
+            const iframe = document.createElement('iframe');
+            iframe.id = 'printIframe';
+            iframe.style.position = 'fixed';
+            iframe.style.right = '0';
+            iframe.style.bottom = '0';
+            iframe.style.width = '0';
+            iframe.style.height = '0';
+            iframe.style.border = '0';
+            document.body.appendChild(iframe);
+
+            const clone = sheet.cloneNode(true);
+            clone.querySelectorAll('.solution-toggle').forEach(el => el.remove());
+
+            // Convert and size all SVGs for high-res mobile printer rasterizers
+            clone.querySelectorAll('.diagram-box svg').forEach(svg => {
+                svg.setAttribute('width', '240');
+                svg.setAttribute('height', '120');
             });
 
-            // Ensure SVGs have concrete width and height for PDF spoolers
-            printContent.querySelectorAll('.diagram-box svg').forEach(svg => {
-                if (!svg.getAttribute('width')) svg.setAttribute('width', '240');
-                if (!svg.getAttribute('height')) svg.setAttribute('height', '120');
-            });
-
-            const printWindow = window.open('', '_blank');
-            if (!printWindow) {
-                window.print();
-                return;
-            }
-
-            printWindow.document.open();
-            printWindow.document.write(`
+            const doc = iframe.contentWindow.document;
+            doc.open();
+            doc.write(`
                 <!DOCTYPE html>
                 <html>
                 <head>
@@ -790,81 +788,34 @@
                     <meta name="viewport" content="width=device-width, initial-scale=1.0">
                     <title>Worksheet - Hydrogen.ai</title>
                     <style>
-                        @page {
-                            size: A4 portrait;
-                            margin: 12mm 15mm;
-                        }
-                        * {
-                            box-sizing: border-box;
-                            -webkit-print-color-adjust: exact !important;
-                            print-color-adjust: exact !important;
-                        }
-                        body {
-                            margin: 0;
-                            padding: 0;
-                            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-                            color: #0f172a;
-                            background: #ffffff;
-                        }
-                        .paper-sheet {
-                            width: 100%;
-                            background: #ffffff;
-                        }
-                        .paper-border {
-                            border-bottom: 1.5px solid #000000;
-                            margin-bottom: 16px;
-                            padding-bottom: 12px;
-                        }
-                        .problem-item {
-                            page-break-inside: avoid;
-                            break-inside: avoid;
-                            margin-bottom: 22px;
-                            padding-top: 14px;
-                            border-top: 1px solid #e2e8f0;
-                        }
-                        .problem-item:first-child {
-                            border-top: none;
-                            padding-top: 0;
-                        }
-                        .diagram-box {
-                            display: flex;
-                            justify-content: center;
-                            align-items: center;
-                            margin: 12px auto;
-                            page-break-inside: avoid;
-                            break-inside: avoid;
-                        }
-                        .diagram-box > div {
-                            display: flex;
-                            justify-content: center;
-                            align-items: center;
-                            background: #ffffff;
-                            border: 1px solid #cbd5e1;
-                            border-radius: 8px;
-                            padding: 8px 12px;
-                        }
-                        svg {
-                            display: block;
-                            width: 240px;
-                            height: 120px;
-                            margin: 0 auto;
-                        }
+                        @page { size: A4 portrait; margin: 12mm 15mm; }
+                        * { box-sizing: border-box; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+                        body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; color: #0f172a; background: #ffffff; }
+                        .paper-sheet { width: 100%; background: #ffffff; }
+                        .paper-border { border-bottom: 1.5px solid #000000; margin-bottom: 16px; padding-bottom: 12px; }
+                        .problem-item { page-break-inside: avoid; break-inside: avoid; margin-bottom: 22px; padding-top: 14px; border-top: 1px solid #e2e8f0; }
+                        .problem-item:first-child { border-top: none; padding-top: 0; }
+                        .diagram-box { display: flex; justify-content: center; align-items: center; margin: 12px auto; page-break-inside: avoid; break-inside: avoid; }
+                        .diagram-box > div { display: flex; justify-content: center; align-items: center; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px; padding: 8px 12px; }
+                        svg { display: block; width: 240px; height: 120px; margin: 0 auto; }
                     </style>
                 </head>
                 <body>
-                    ${printContent.outerHTML}
+                    ${clone.outerHTML}
                 </body>
                 </html>
             `);
-            printWindow.document.close();
+            doc.close();
 
-            printWindow.onload = function() {
-                setTimeout(() => {
-                    printWindow.focus();
-                    printWindow.print();
-                    printWindow.close();
-                }, 200);
-            };
+            // Give mobile browser a split second to finish laying out iframe content
+            setTimeout(() => {
+                try {
+                    iframe.contentWindow.focus();
+                    iframe.contentWindow.print();
+                } catch (e) {
+                    window.print();
+                }
+            }, 250);
         }
 
         // AI Tutor Submission
@@ -965,7 +916,7 @@
             }
         });
 
-        // Universal Worksheet Render Engine
+        // Universal Worksheet Render Engine (Safeguards Diagrams on Mobile)
         function renderWorksheet(problems) {
             const container = document.getElementById('questionsContainer');
             container.innerHTML = '';
@@ -985,30 +936,6 @@
                     if (svgMatch) {
                         rawDiagram = svgMatch[0];
                         probText = probText.replace(svgMatch[0], '').trim();
-                    }
-                }
-                // Or extract TikZ scripts
-                else if (probText.includes('<script type="text/tikz">')) {
-                    const tikzMatch = probText.match(/<script type="text\/tikz">([\s\S]*?)<\/script>/i);
-                    if (tikzMatch) {
-                        const iframeDoc = `
-                            <!DOCTYPE html>
-                            <html>
-                            <head>
-                                <script type="text/javascript" src="https://tikzjax.com/v1/tikzjax.js"><\/script>
-                                <style>
-                                    body { margin: 0; display: flex; justify-content: center; align-items: center; background: transparent; }
-                                    svg text { fill: #0f172a; }
-                                </style>
-                            </head>
-                            <body>
-                                <script type="text/tikz">${tikzMatch[1]}<\/script>
-                            </body>
-                            </html>
-                        `;
-                        const encoded = encodeURIComponent(iframeDoc);
-                        rawDiagram = `<iframe src="data:text/html;charset=utf-8,${encoded}" style="width:100%; height:180px; border:none;" scrolling="no"></iframe>`;
-                        probText = probText.replace(tikzMatch[0], '').trim();
                     }
                 }
 
@@ -1041,6 +968,7 @@
                 container.appendChild(problemDiv);
             });
 
+            // Typeset math without touching SVG elements
             if (window.MathJax) {
                 MathJax.typesetPromise();
             }
