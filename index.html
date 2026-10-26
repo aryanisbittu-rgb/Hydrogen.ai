@@ -33,12 +33,11 @@
         }
     </script>
     
-    <!-- MathJax for LaTeX typesetting (Protected from touching SVGs) -->
+    <!-- MathJax for LaTeX typesetting (configured so it never breaks SVGs) -->
     <script>
         window.MathJax = {
             tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] },
             options: {
-                // Prevent MathJax from parsing inside SVG tags and corrupting diagrams
                 skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code', 'svg', 'foreignObject']
             }
         };
@@ -74,7 +73,6 @@
             -webkit-user-select: text !important;
         }
 
-        /* Screen SVG Styles */
         .diagram-box {
             display: flex;
             justify-content: center;
@@ -89,9 +87,7 @@
             overflow: visible;
         }
 
-        /* ========================================================= */
-        /* PRINT ENGINE FOR MOBILE, DESKTOP, AND PDF ENGINES        */
-        /* ========================================================= */
+        /* Fallback Print Styles */
         @media print {
             @page {
                 size: A4 portrait;
@@ -101,50 +97,24 @@
             html, body {
                 width: 100% !important;
                 height: auto !important;
-                min-height: 100% !important;
                 overflow: visible !important;
-                position: static !important;
                 background: #ffffff !important;
                 color: #000000 !important;
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
             }
 
-            .no-print, 
-            header, 
-            aside, 
-            nav, 
-            button, 
-            .modal-backdrop, 
-            #tutorDrawer, 
-            #sidebarOverlay, 
-            #formulaModal, 
-            #modalOverlay,
-            .solution-toggle summary {
+            .no-print, header, aside, nav, button, .modal-backdrop, #tutorDrawer, #sidebarOverlay, #formulaModal, #modalOverlay, .solution-toggle summary {
                 display: none !important;
             }
 
-            main {
+            main, #printableSheet {
                 display: block !important;
-                position: static !important;
                 width: 100% !important;
-                max-width: 100% !important;
-                height: auto !important;
-                overflow: visible !important;
                 padding: 0 !important;
                 margin: 0 !important;
-            }
-
-            #printableSheet {
-                display: block !important;
-                position: static !important;
-                width: 100% !important;
-                max-width: 100% !important;
-                height: auto !important;
                 border: none !important;
                 box-shadow: none !important;
-                padding: 0 !important;
-                margin: 0 !important;
                 background: #ffffff !important;
             }
 
@@ -157,70 +127,19 @@
             .problem-item {
                 page-break-inside: avoid !important;
                 break-inside: avoid !important;
-                margin-bottom: 24px !important;
+                margin-bottom: 22px !important;
                 padding-top: 14px !important;
-            }
-
-            /* Print visibility for diagram containers */
-            .diagram-box {
-                display: flex !important;
-                justify-content: center !important;
-                align-items: center !important;
-                visibility: visible !important;
-                opacity: 1 !important;
-                width: 100% !important;
-                margin: 14px auto !important;
-                page-break-inside: avoid !important;
-                break-inside: avoid !important;
-            }
-
-            .diagram-box > div {
-                display: flex !important;
-                justify-content: center !important;
-                align-items: center !important;
-                background: #ffffff !important;
-                border: 1px solid #cbd5e1 !important;
-                border-radius: 8px !important;
-                padding: 8px 12px !important;
-                box-shadow: none !important;
             }
 
             .diagram-box svg {
                 display: block !important;
-                visibility: visible !important;
-                opacity: 1 !important;
-                width: 260px !important;
-                height: 130px !important;
+                width: 240px !important;
+                height: 120px !important;
                 margin: 0 auto !important;
-                overflow: visible !important;
             }
 
-            .diagram-box svg polygon,
-            .diagram-box svg path,
-            .diagram-box svg line,
-            .diagram-box svg rect,
-            .diagram-box svg circle {
-                visibility: visible !important;
-                opacity: 1 !important;
-                -webkit-print-color-adjust: exact !important;
-                print-color-adjust: exact !important;
-            }
-
-            .diagram-box svg text {
-                fill: #000000 !important;
-                font-weight: 600 !important;
-                visibility: visible !important;
-            }
-
-            details { display: block !important; }
             .solution-box {
-                display: block !important;
-                margin-top: 8px !important;
-                padding: 8px 12px !important;
-                background: #f8fafc !important;
-                border-left: 3px solid #7c3aed !important;
-                font-size: 11px !important;
-                font-family: monospace !important;
+                display: none !important;
             }
         }
     </style>
@@ -305,7 +224,7 @@
                     <span class="text-brand-600">📑</span>
                     <div class="truncate">
                         <p id="sidebarSessionTitle" class="font-semibold truncate text-slate-800">Mixed Math Review</p>
-                        <p id="sidebarSessionSub" class="text-[10px] text-slate-500">Grade 10 • 10 Questions</p>
+                        <p id="sidebarSessionSub" class="text-[10px] text-slate-500">Grade 10 • 3 Questions</p>
                     </div>
                 </div>
             </div>
@@ -370,7 +289,7 @@
                     <div>
                         <p class="text-[10px] font-bold uppercase tracking-wider text-brand-600">Your Practice, On Paper</p>
                         <h2 id="sheetMainTitle" class="text-2xl font-bold text-slate-900 tracking-tight">Mixed Topics Review</h2>
-                        <p id="sheetMetaSubtitle" class="text-xs text-slate-500 mt-0.5">Grade 10 • 10 questions • Comprehensive Practice</p>
+                        <p id="sheetMetaSubtitle" class="text-xs text-slate-500 mt-0.5">Grade 10 • 3 questions • Comprehensive Practice</p>
                     </div>
 
                     <!-- Worksheet vs Answer Key View Switcher -->
@@ -395,7 +314,7 @@
                             <div>
                                 <div class="flex items-center space-x-2 mb-1">
                                     <svg class="w-4 h-4 text-brand-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <circle cx="12" cy="12" r="2" fill="currentColor"/>
+                                        <circle cx="12" cy="12" r="2.5" fill="currentColor"/>
                                         <ellipse cx="12" cy="12" rx="9" ry="3.5" transform="rotate(30 12 12)"/>
                                         <ellipse cx="12" cy="12" rx="9" ry="3.5" transform="rotate(90 12 12)"/>
                                         <ellipse cx="12" cy="12" rx="9" ry="3.5" transform="rotate(150 12 12)"/>
@@ -697,7 +616,7 @@
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-slate-600 mb-1">Problems</label>
-                        <input type="number" id="numProblemsInput" value="5" min="1" max="15" 
+                        <input type="number" id="numProblemsInput" value="3" min="1" max="15" 
                                class="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-800 focus:outline-none focus:border-brand-600">
                     </div>
                 </div>
@@ -815,9 +734,9 @@
         }
 
         /* 
-           Direct Safe Print Pipeline:
-           Extracts SVGs from iframes (if any exist) and applies explicit dimensions
-           so PDF engines don't collapse them.
+           Safe Print Pipeline for Mobile & Desktop:
+           Creates a lightweight print document stripped of heavy UI libraries.
+           Enforces valid SVG dimensions and allows instant "Save as PDF".
         */
         function triggerMobileSafePrint() {
             if (document.activeElement && typeof document.activeElement.blur === 'function') {
@@ -828,8 +747,17 @@
             closeModal();
             closeFormulaModal();
 
-            // Extract any SVGs currently trapped in iframes to parent container for printing
-            document.querySelectorAll('.diagram-box iframe').forEach(iframe => {
+            const sheet = document.getElementById('printableSheet');
+            if (!sheet) {
+                window.print();
+                return;
+            }
+
+            const printContent = sheet.cloneNode(true);
+            printContent.querySelectorAll('.solution-toggle').forEach(el => el.remove());
+
+            // Extract any SVGs inside iframes
+            printContent.querySelectorAll('.diagram-box iframe').forEach(iframe => {
                 try {
                     const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
                     const innerSvg = iframeDoc ? iframeDoc.querySelector('svg') : null;
@@ -841,15 +769,102 @@
                 } catch (e) {}
             });
 
-            // Enforce explicit physical dimensions so print rasterizers never drop SVGs
-            document.querySelectorAll('.diagram-box svg').forEach(svg => {
-                if (!svg.getAttribute('width')) svg.setAttribute('width', '260');
-                if (!svg.getAttribute('height')) svg.setAttribute('height', '130');
+            // Ensure SVGs have concrete width and height for PDF spoolers
+            printContent.querySelectorAll('.diagram-box svg').forEach(svg => {
+                if (!svg.getAttribute('width')) svg.setAttribute('width', '240');
+                if (!svg.getAttribute('height')) svg.setAttribute('height', '120');
             });
 
-            setTimeout(() => {
+            const printWindow = window.open('', '_blank');
+            if (!printWindow) {
                 window.print();
-            }, 100);
+                return;
+            }
+
+            printWindow.document.open();
+            printWindow.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>Worksheet - Hydrogen.ai</title>
+                    <style>
+                        @page {
+                            size: A4 portrait;
+                            margin: 12mm 15mm;
+                        }
+                        * {
+                            box-sizing: border-box;
+                            -webkit-print-color-adjust: exact !important;
+                            print-color-adjust: exact !important;
+                        }
+                        body {
+                            margin: 0;
+                            padding: 0;
+                            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+                            color: #0f172a;
+                            background: #ffffff;
+                        }
+                        .paper-sheet {
+                            width: 100%;
+                            background: #ffffff;
+                        }
+                        .paper-border {
+                            border-bottom: 1.5px solid #000000;
+                            margin-bottom: 16px;
+                            padding-bottom: 12px;
+                        }
+                        .problem-item {
+                            page-break-inside: avoid;
+                            break-inside: avoid;
+                            margin-bottom: 22px;
+                            padding-top: 14px;
+                            border-top: 1px solid #e2e8f0;
+                        }
+                        .problem-item:first-child {
+                            border-top: none;
+                            padding-top: 0;
+                        }
+                        .diagram-box {
+                            display: flex;
+                            justify-content: center;
+                            align-items: center;
+                            margin: 12px auto;
+                            page-break-inside: avoid;
+                            break-inside: avoid;
+                        }
+                        .diagram-box > div {
+                            display: flex;
+                            justify-content: center;
+                            align-items: center;
+                            background: #ffffff;
+                            border: 1px solid #cbd5e1;
+                            border-radius: 8px;
+                            padding: 8px 12px;
+                        }
+                        svg {
+                            display: block;
+                            width: 240px;
+                            height: 120px;
+                            margin: 0 auto;
+                        }
+                    </style>
+                </head>
+                <body>
+                    ${printContent.outerHTML}
+                </body>
+                </html>
+            `);
+            printWindow.document.close();
+
+            printWindow.onload = function() {
+                setTimeout(() => {
+                    printWindow.focus();
+                    printWindow.print();
+                    printWindow.close();
+                }, 200);
+            };
         }
 
         // AI Tutor Submission
@@ -950,7 +965,7 @@
             }
         });
 
-        // Universal Render Engine with Diagram Extraction
+        // Universal Worksheet Render Engine
         function renderWorksheet(problems) {
             const container = document.getElementById('questionsContainer');
             container.innerHTML = '';
@@ -960,20 +975,19 @@
                 let probText = item.problem_text || '';
                 let rawDiagram = '';
 
-                // 1. Check for dedicated svg_diagram property
+                // Extract diagram from svg_diagram property
                 if (item.svg_diagram && item.svg_diagram.trim() !== "" && item.svg_diagram !== "null") {
                     rawDiagram = item.svg_diagram;
                 }
-                // 2. Check if the model embedded an <svg> directly inside problem_text
+                // Or extract inline SVG embedded in problem_text
                 else if (probText.includes('<svg')) {
                     const svgMatch = probText.match(/<svg[\s\S]*?<\/svg>/i);
                     if (svgMatch) {
                         rawDiagram = svgMatch[0];
-                        // Strip raw SVG out of problem_text so MathJax won't corrupt it
                         probText = probText.replace(svgMatch[0], '').trim();
                     }
                 }
-                // 3. Check if TikZ code exists in problem_text
+                // Or extract TikZ scripts
                 else if (probText.includes('<script type="text/tikz">')) {
                     const tikzMatch = probText.match(/<script type="text\/tikz">([\s\S]*?)<\/script>/i);
                     if (tikzMatch) {
@@ -998,7 +1012,6 @@
                     }
                 }
 
-                // Construct clean diagram card only if a diagram exists
                 const diagramHtml = rawDiagram ? `
                     <div class="diagram-box flex justify-center my-3 sm:my-4">
                         <div class="bg-slate-50 p-3 sm:p-4 rounded-xl border border-slate-200 max-w-sm w-full flex justify-center overflow-hidden">
@@ -1028,7 +1041,6 @@
                 container.appendChild(problemDiv);
             });
 
-            // Typeset math without touching diagrams
             if (window.MathJax) {
                 MathJax.typesetPromise();
             }
