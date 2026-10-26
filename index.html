@@ -252,12 +252,78 @@
         <span>MathJax • TikZJax • FastAPI</span>
     </footer>
 
+    <!-- Floating AI Tutor Button -->
+    <button onclick="toggleTutor()" class="fixed bottom-6 right-6 z-50 bg-slate-900 text-white px-5 py-3 rounded-2xl shadow-xl flex items-center space-x-2 text-sm font-semibold hover:bg-slate-800 transition no-print">
+        <span>🤖</span> <span>Ask AI Tutor</span>
+    </button>
+
+    <!-- Slide-over Drawer -->
+    <div id="tutorDrawer" class="fixed inset-y-0 right-0 w-full sm:w-96 bg-white shadow-2xl transform translate-x-full transition-transform duration-300 z-50 flex flex-col no-print border-l border-slate-200">
+        <div class="p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50">
+            <h3 class="font-bold text-slate-800 text-sm">AI Math Tutor</h3>
+            <button onclick="toggleTutor()" class="text-slate-400 hover:text-slate-600">✕</button>
+        </div>
+        <div id="chatMessages" class="flex-1 overflow-y-auto p-4 space-y-4"></div>
+        <form id="tutorForm" class="p-4 border-t border-slate-100 flex space-x-2">
+            <input type="text" id="tutorInput" placeholder="Ask a math question..." class="flex-1 border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-bold">Send</button>
+        </form>
+    </div>
+
     <!-- Frontend Logic -->
     <script>
         // Exact Render URL
         const BACKEND_URL = "https://my-math.onrender.com/";
         // Normalizes URL so double-slashes do not cause 404s
         const API_ENDPOINT = BACKEND_URL.replace(/\/+$/, '') + "/generate";
+
+        // AI Tutor State
+        let chatHistory = [];
+
+        function toggleTutor() {
+            const drawer = document.getElementById('tutorDrawer');
+            drawer.classList.toggle('translate-x-full');
+        }
+
+        document.getElementById('tutorForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const input = document.getElementById('tutorInput');
+            const msg = input.value.trim();
+            if (!msg) return;
+
+            // Render User Msg
+            chatHistory.push({ role: 'user', content: msg });
+            renderChat();
+            input.value = '';
+
+            try {
+                const response = await fetch(`${BACKEND_URL.replace(/\/+$/, '')}/tutor`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        grade_level: parseInt(document.getElementById('grade_level').value),
+                        messages: chatHistory
+                    })
+                });
+
+                const data = await response.json();
+                chatHistory.push({ role: 'model', content: data.reply });
+                renderChat();
+            } catch (err) {
+                alert("Tutor error: " + err.message);
+            }
+        });
+
+        function renderChat() {
+            const container = document.getElementById('chatMessages');
+            container.innerHTML = chatHistory.map(m => `
+                <div class="text-sm p-3 rounded-2xl ${m.role === 'user' ? 'bg-blue-600 text-white ml-8' : 'bg-slate-100 text-slate-800 mr-8'}">
+                    ${m.content}
+                </div>
+            `).join('');
+            container.scrollTop = container.scrollHeight;
+            if (window.MathJax) MathJax.typesetPromise();
+        }
 
         function setTopic(name) {
             document.getElementById('topic').value = name;
