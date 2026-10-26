@@ -41,7 +41,6 @@
         body { 
             font-family: 'Plus Jakarta Sans', sans-serif;
             color: #1e293b;
-            /* Math doodle tiled background using bg.jpeg */
             background-color: #f8fafc;
             background-image: url('bg.jpeg');
             background-repeat: repeat;
@@ -66,19 +65,25 @@
             box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.12), 0 0 0 1px rgba(226, 232, 240, 0.8);
         }
 
-        /* Clean Print Output */
+        /* Robust Mobile & Desktop Print Styles */
         @media print {
-            @page { size: auto; margin: 0; }
             html, body {
-                width: 100%;
-                height: auto;
+                width: 100% !important;
+                height: auto !important;
+                min-height: 100% !important;
+                overflow: visible !important;
+                position: static !important;
                 background: #ffffff !important;
                 color: #000000 !important;
                 background-image: none !important;
-                display: block !important;
-                position: static !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
             }
-            .no-print, header, footer, form, #formContainer, .no-print * { display: none !important; }
+
+            .no-print, header, footer, form, #formContainer, #tutorDrawer, button { 
+                display: none !important; 
+            }
+
             main, #resultsWrapper {
                 display: block !important;
                 width: 100% !important;
@@ -86,17 +91,34 @@
                 margin: 0 !important;
                 max-width: 100% !important;
                 position: static !important;
+                overflow: visible !important;
             }
+
             .paper-sheet {
                 background: #ffffff !important;
                 color: #000000 !important;
                 border: none !important;
                 box-shadow: none !important;
-                padding: 20px !important;
+                padding: 10px 0 !important;
                 width: 100% !important;
                 max-width: 100% !important;
                 box-sizing: border-box !important;
             }
+
+            /* Keep diagrams rendered without clipping or crashing */
+            iframe {
+                display: block !important;
+                visibility: visible !important;
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
+                max-width: 100% !important;
+            }
+
+            .problem-item, details {
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
+            }
+
             .paper-text-dark { color: #000000 !important; }
             .paper-subtext { color: #475569 !important; }
             .paper-border { border-color: #cbd5e1 !important; }
@@ -120,7 +142,7 @@
             </div>
         </div>
 
-        <button onclick="window.print()" class="px-3.5 py-1.5 text-xs font-semibold bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 rounded-xl transition duration-150 flex items-center space-x-1.5 shadow-sm">
+        <button type="button" onclick="triggerMobileSafePrint()" class="px-3.5 py-1.5 text-xs font-semibold bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 rounded-xl transition duration-150 flex items-center space-x-1.5 shadow-sm">
             <span>🖨️</span>
             <span>Print / PDF</span>
         </button>
@@ -300,8 +322,20 @@
     <script>
         // Exact Render URL
         const BACKEND_URL = "https://my-math.onrender.com/";
-        // Normalizes URL so double-slashes do not cause 404s
         const API_ENDPOINT = BACKEND_URL.replace(/\/+$/, '') + "/generate";
+
+        // Mobile-friendly Print Trigger
+        function triggerMobileSafePrint() {
+            // Dismiss active focus/virtual keyboard
+            if (document.activeElement && typeof document.activeElement.blur === 'function') {
+                document.activeElement.blur();
+            }
+
+            // Let viewport repaint and settle before invoking system print
+            setTimeout(() => {
+                window.print();
+            }, 200);
+        }
 
         // AI Tutor State
         let chatHistory = [];
@@ -317,7 +351,6 @@
             const msg = input.value.trim();
             if (!msg) return;
 
-            // Render User Msg
             chatHistory.push({ role: 'user', content: msg });
             renderChat();
             input.value = '';
@@ -461,7 +494,7 @@
                 });
 
                 const problemDiv = document.createElement('div');
-                problemDiv.className = "space-y-3 pt-6 first:pt-0 border-t border-slate-200 first:border-0";
+                problemDiv.className = "problem-item space-y-3 pt-6 first:pt-0 border-t border-slate-200 first:border-0";
                 problemDiv.innerHTML = `
                     <div class="flex items-start space-x-3.5 text-sm md:text-base leading-relaxed">
                         <span class="font-mono font-bold text-blue-600 text-sm select-none">${qNum}</span>
