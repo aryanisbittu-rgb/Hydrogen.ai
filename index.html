@@ -66,19 +66,21 @@
             min-height: 800px;
         }
 
-        svg {
-            max-width: 100% !important;
-            height: auto !important;
-            user-select: all !important;
-        }
-
         .copy-selectable {
             user-select: text !important;
             -webkit-user-select: text !important;
         }
 
+        /* Screen SVG styles */
+        .diagram-box svg {
+            display: block;
+            margin: 0 auto;
+            max-width: 100%;
+            height: auto;
+        }
+
         /* ========================================================= */
-        /* BULLETPROOF MOBILE PRINT ENGINE (NO POPUP BLOCKERS, 100% SVG) */
+        /* PRINT PDF FIX FOR DIAGRAMS AND MOBILE ENGINES            */
         /* ========================================================= */
         @media print {
             @page {
@@ -86,7 +88,6 @@
                 margin: 12mm 15mm;
             }
 
-            /* Unconstrain viewport completely so all pages flow */
             html, body {
                 width: 100% !important;
                 height: auto !important;
@@ -99,7 +100,6 @@
                 print-color-adjust: exact !important;
             }
 
-            /* Hide everything except printable canvas */
             .no-print, 
             header, 
             aside, 
@@ -114,7 +114,6 @@
                 display: none !important;
             }
 
-            /* Force main scroll area to expand to 100% natural height */
             main {
                 display: block !important;
                 position: static !important;
@@ -148,34 +147,59 @@
             .problem-item {
                 page-break-inside: avoid !important;
                 break-inside: avoid !important;
-                margin-bottom: 22px !important;
+                margin-bottom: 24px !important;
                 padding-top: 14px !important;
             }
 
-            /* Ensure diagrams display clearly in print */
+            /* FORCE DIAGRAM BOX & SVG VISIBILITY IN PRINT PDF */
             .diagram-box {
-                display: flex !important;
-                justify-content: center !important;
-                margin: 10px 0 !important;
-                page-break-inside: avoid !important;
-                break-inside: avoid !important;
-            }
-
-            .diagram-box > div {
-                background: #ffffff !important;
-                border: 1px solid #e2e8f0 !important;
-                box-shadow: none !important;
-            }
-
-            svg {
                 display: block !important;
                 visibility: visible !important;
                 opacity: 1 !important;
-                max-height: 140px !important;
-                margin: 0 auto !important;
+                width: 100% !important;
+                margin: 12px auto !important;
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
+                text-align: center !important;
             }
 
-            /* Keep solution box styled neatly if printed with solutions open */
+            .diagram-box > div {
+                display: inline-block !important;
+                background: #ffffff !important;
+                border: 1px solid #cbd5e1 !important;
+                border-radius: 8px !important;
+                padding: 10px 16px !important;
+                box-shadow: none !important;
+            }
+
+            .diagram-box svg {
+                display: block !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+                width: 260px !important;
+                height: 130px !important;
+                margin: 0 auto !important;
+                overflow: visible !important;
+            }
+
+            /* Ensure all SVG paths, polygons, text, and strokes render */
+            .diagram-box svg polygon,
+            .diagram-box svg path,
+            .diagram-box svg line,
+            .diagram-box svg rect,
+            .diagram-box svg circle {
+                visibility: visible !important;
+                opacity: 1 !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            .diagram-box svg text {
+                fill: #000000 !important;
+                font-weight: 600 !important;
+                visibility: visible !important;
+            }
+
             details { display: block !important; }
             .solution-box {
                 display: block !important;
@@ -317,7 +341,6 @@
                 <button onclick="openModal()" class="px-2.5 sm:px-3 py-1.5 text-xs font-semibold bg-brand-600 text-white rounded-lg hover:bg-brand-700 transition shadow-sm">
                     + New
                 </button>
-                <!-- Direct native print (Works on iOS, Android Chrome, Mac, Windows) -->
                 <button onclick="triggerMobileSafePrint()" class="px-2.5 sm:px-3 py-1.5 text-xs font-medium bg-white text-slate-700 border border-slate-200 rounded-lg hover:bg-slate-50 transition flex items-center space-x-1.5 shadow-sm">
                     <span>🖨️</span>
                     <span>Print</span>
@@ -360,7 +383,7 @@
                             <div>
                                 <div class="flex items-center space-x-2 mb-1">
                                     <svg class="w-4 h-4 text-brand-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <circle cx="12" cy="12" r="2" fill="currentColor"/>
+                                        <circle cx="12" cy="12" r="2.5" fill="currentColor"/>
                                         <ellipse cx="12" cy="12" rx="9" ry="3.5" transform="rotate(30 12 12)"/>
                                         <ellipse cx="12" cy="12" rx="9" ry="3.5" transform="rotate(90 12 12)"/>
                                         <ellipse cx="12" cy="12" rx="9" ry="3.5" transform="rotate(150 12 12)"/>
@@ -402,7 +425,7 @@
                             </div>
                             <div class="diagram-box flex justify-center my-3 sm:my-4">
                                 <div class="bg-slate-50 p-3 sm:p-4 rounded-xl border border-slate-200 max-w-sm w-full flex justify-center">
-                                    <svg viewBox="0 0 260 130" class="w-64 h-32">
+                                    <svg viewBox="0 0 260 130" width="260" height="130" class="w-64 h-32">
                                         <polygon points="50,105 195,105 225,30 80,30" fill="rgba(124, 58, 237, 0.05)" stroke="#7C3AED" stroke-width="2"/>
                                         <line x1="80" y1="30" x2="80" y2="105" stroke="#EF4444" stroke-width="1.5" stroke-dasharray="4,4"/>
                                         <rect x="80" y="97" width="8" height="8" fill="none" stroke="#EF4444" stroke-width="1"/>
@@ -451,7 +474,7 @@
                             </div>
                             <div class="diagram-box flex justify-center my-3 sm:my-4">
                                 <div class="bg-slate-50 p-3 sm:p-4 rounded-xl border border-slate-200 max-w-sm w-full flex justify-center">
-                                    <svg viewBox="0 0 240 120" class="w-60 h-28">
+                                    <svg viewBox="0 0 240 120" width="240" height="120" class="w-60 h-28">
                                         <line x1="30" y1="100" x2="200" y2="100" stroke="#64748B" stroke-width="2"/>
                                         <line x1="200" y1="100" x2="200" y2="20" stroke="#7C3AED" stroke-width="2.5"/>
                                         <line x1="30" y1="100" x2="200" y2="20" stroke="#2563EB" stroke-width="1.5" stroke-dasharray="3,3"/>
@@ -781,20 +804,24 @@
 
         /* 
            Direct In-Place Print Engine:
-           Bypasses mobile browser popup blockers, expands viewport cleanly,
-           and guarantees SVGs stay visible on iOS and Android Chrome.
+           Forces SVGs to explicit pixel dimensions right before printing
+           so mobile PDF rendering engines don't collapse them to 0px.
         */
         function triggerMobileSafePrint() {
             if (document.activeElement && typeof document.activeElement.blur === 'function') {
                 document.activeElement.blur();
             }
 
-            // Close any mobile sidebars/modals before printing
             closeSidebarIfMobile();
             closeModal();
             closeFormulaModal();
 
-            // Give the browser 100ms to clear UI focus, then call window.print() directly
+            // Ensure every SVG has explicit width/height attributes for PDF rasterizers
+            document.querySelectorAll('.diagram-box svg').forEach(svg => {
+                if (!svg.getAttribute('width')) svg.setAttribute('width', '260');
+                if (!svg.getAttribute('height')) svg.setAttribute('height', '130');
+            });
+
             setTimeout(() => {
                 window.print();
             }, 100);
@@ -879,7 +906,6 @@
                 const data = await response.json();
                 currentProblems = data.worksheet || data;
 
-                // Sync Headings & Badges
                 document.getElementById('sheetMainTitle').innerText = topic;
                 document.getElementById('paperTitle').innerText = topic;
                 document.getElementById('paperBadgeType').innerText = `HYDROGEN ${worksheet_type.toUpperCase()}`;
@@ -907,7 +933,36 @@
                 const qNum = String(index + 1).padStart(2, '0');
                 let probText = item.problem_text;
 
-                // Check for dedicated svg_diagram property or inline SVG
+                // Handle TikZ rendering in isolated iframes
+                probText = probText.replace(/<script type="text\/tikz">([\s\S]*?)<\/script>/g, (match, tikzCode) => {
+                    const iframeDoc = `
+                        <!DOCTYPE html>
+                        <html>
+                        <head>
+                            <script type="text/javascript" src="https://tikzjax.com/v1/tikzjax.js"><\/script>
+                            <style>
+                                body { margin: 0; display: flex; justify-content: center; align-items: center; background: transparent; }
+                                svg text { fill: #0f172a; }
+                            </style>
+                        </head>
+                        <body>
+                            <script type="text/tikz">
+                                ${tikzCode}
+                            <\/script>
+                        </body>
+                        </html>
+                    `;
+                    const encodedIframe = encodeURIComponent(iframeDoc);
+                    return `
+                        <div class="diagram-box flex justify-center my-4">
+                            <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 max-w-md w-full flex justify-center shadow-inner">
+                                <iframe src="data:text/html;charset=utf-8,${encodedIframe}" style="width:100%; height:200px; border:none;" scrolling="no"></iframe>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                // Dedicated SVG diagram container with print dimensions
                 let diagramHtml = '';
                 if (item.svg_diagram && item.svg_diagram.trim() !== "" && item.svg_diagram !== "null") {
                     diagramHtml = `
