@@ -137,12 +137,21 @@
                         </div>
                         <span class="text-[9px] bg-brand-100 text-brand-700 px-1.5 py-0.5 rounded-md font-semibold">Active</span>
                     </button>
+                    <!-- Geometry Cheatsheet Button -->
                     <button onclick="openFormulaModal()" class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 text-xs transition">
                         <div class="flex items-center space-x-2.5">
                             <span>📐</span>
                             <span>Geometry Cheatsheet</span>
                         </div>
                         <span class="text-[9px] bg-purple-50 text-purple-600 px-1.5 py-0.5 rounded-md font-medium">Formulas</span>
+                    </button>
+                    <!-- Formula Cheatsheet Button -->
+                    <button onclick="openFormulaModal()" class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 text-xs transition">
+                        <div class="flex items-center space-x-2.5">
+                            <span>📖</span>
+                            <span>Formula Reference</span>
+                        </div>
+                        <span class="text-[9px] text-slate-400">Reference</span>
                     </button>
                 </nav>
             </div>
@@ -249,7 +258,7 @@
                             <div>
                                 <div class="flex items-center space-x-2 mb-1.5">
                                     <svg class="w-4 h-4 text-brand-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <circle cx="12" cy="12" r="2.5" fill="currentColor"/>
+                                        <circle cx="12" cy="12" r="2" fill="currentColor"/>
                                         <ellipse cx="12" cy="12" rx="9" ry="3.5" transform="rotate(30 12 12)"/>
                                         <ellipse cx="12" cy="12" rx="9" ry="3.5" transform="rotate(90 12 12)"/>
                                         <ellipse cx="12" cy="12" rx="9" ry="3.5" transform="rotate(150 12 12)"/>
@@ -511,96 +520,90 @@
     <!-- ========================================== -->
     <!-- GEOMETRY FORMULA CHEATSHEET MODAL          -->
     <!-- ========================================== -->
-    <div id="formulaModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden modal-backdrop no-print">
+    <div id="formulaModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden modal-backdrop no-print">
         <div class="bg-white border border-slate-200 rounded-2xl w-full max-w-2xl max-h-[85vh] flex flex-col shadow-2xl overflow-hidden">
             
             <div class="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/70">
                 <div class="flex items-center space-x-2.5">
-                    <div class="w-7 h-7 rounded-lg bg-brand-600 text-white flex items-center justify-center font-bold text-xs shadow-sm">
+                    <div class="w-8 h-8 rounded-lg bg-brand-600 text-white flex items-center justify-center font-bold text-sm shadow-sm">
                         📐
                     </div>
                     <div>
-                        <h3 class="font-bold text-slate-900 text-sm sm:text-base">Geometry & Mensuration Cheatsheet</h3>
-                        <p class="text-[11px] text-slate-500">Essential standard formulas for quick reference</p>
+                        <h3 class="font-bold text-slate-900 text-base">Geometry & Mensuration Cheatsheet</h3>
+                        <p class="text-xs text-slate-500">Standard CBSE / NCERT exam reference formulas</p>
                     </div>
                 </div>
-                <button onclick="closeFormulaModal()" class="text-slate-400 hover:text-slate-600 text-sm font-bold p-1">✕</button>
+                <button onclick="closeFormulaModal()" class="text-slate-400 hover:text-slate-600 text-lg font-bold p-1">✕</button>
             </div>
 
-            <div class="p-4 sm:p-6 overflow-y-auto space-y-6 text-xs sm:text-sm">
+            <div class="p-5 sm:p-6 overflow-y-auto space-y-6 text-xs sm:text-sm">
                 
                 <!-- 2D Areas & Perimeters -->
-                <section class="space-y-2.5">
-                    <h4 class="font-bold text-xs uppercase tracking-wider text-brand-700 flex items-center space-x-1.5">
-                        <span>🔷</span> <span>2D Shapes (Area & Perimeter)</span>
-                    </h4>
+                <section class="space-y-2">
+                    <h4 class="font-bold text-xs uppercase tracking-wider text-brand-700">🔷 2D Shapes (Area & Perimeter)</h4>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200/80">
-                            <p class="font-semibold text-slate-800 text-xs">Parallelogram</p>
+                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                            <p class="font-semibold text-slate-800">Parallelogram</p>
                             <p class="font-mono text-slate-700 mt-1">$$\text{Area} = b \times h$$</p>
                             <p class="font-mono text-slate-500 text-[11px]">$$\text{Perimeter} = 2(a + b)$$</p>
                         </div>
-                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200/80">
-                            <p class="font-semibold text-slate-800 text-xs">Triangle</p>
-                            <p class="font-mono text-slate-700 mt-1">$$\text{Area} = \frac{1}{2} \times b \times h$$</p>
+                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                            <p class="font-semibold text-slate-800">Triangle</p>
+                            <p class="font-mono text-slate-700 mt-1">$$\text{Area} = \frac{1}{2}bh$$</p>
                             <p class="font-mono text-slate-500 text-[11px]">$$\text{Heron's: } \sqrt{s(s-a)(s-b)(s-c)}$$</p>
                         </div>
-                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200/80">
-                            <p class="font-semibold text-slate-800 text-xs">Trapezium</p>
-                            <p class="font-mono text-slate-700 mt-1">$$\text{Area} = \frac{1}{2}(a + b) \times h$$</p>
+                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                            <p class="font-semibold text-slate-800">Trapezium</p>
+                            <p class="font-mono text-slate-700 mt-1">$$\text{Area} = \frac{1}{2}(a + b)h$$</p>
                         </div>
-                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200/80">
-                            <p class="font-semibold text-slate-800 text-xs">Circle & Sector</p>
+                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                            <p class="font-semibold text-slate-800">Circle & Sector</p>
                             <p class="font-mono text-slate-700 mt-1">$$\text{Area} = \pi r^2 \quad | \quad C = 2\pi r$$</p>
-                            <p class="font-mono text-slate-500 text-[11px]">$$\text{Sector Area} = \frac{\theta}{360^\circ} \times \pi r^2$$</p>
+                            <p class="font-mono text-slate-500 text-[11px]">$$\text{Sector} = \frac{\theta}{360^\circ} \times \pi r^2$$</p>
                         </div>
                     </div>
                 </section>
 
                 <!-- 3D Mensuration -->
-                <section class="space-y-2.5">
-                    <h4 class="font-bold text-xs uppercase tracking-wider text-brand-700 flex items-center space-x-1.5">
-                        <span>📦</span> <span>3D Solids (Surface Area & Volume)</span>
-                    </h4>
+                <section class="space-y-2">
+                    <h4 class="font-bold text-xs uppercase tracking-wider text-brand-700">📦 3D Solids (Surface Area & Volume)</h4>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200/80">
-                            <p class="font-semibold text-slate-800 text-xs">Right Circular Cylinder</p>
-                            <p class="font-mono text-slate-700 text-xs mt-1">$$\text{CSA} = 2\pi rh \quad | \quad \text{TSA} = 2\pi r(r + h)$$</p>
+                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                            <p class="font-semibold text-slate-800">Cylinder</p>
+                            <p class="font-mono text-slate-700 mt-1">$$\text{TSA} = 2\pi r(r + h)$$</p>
                             <p class="font-mono text-slate-600 text-xs">$$\text{Volume} = \pi r^2 h$$</p>
                         </div>
-                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200/80">
-                            <p class="font-semibold text-slate-800 text-xs">Right Circular Cone</p>
-                            <p class="font-mono text-slate-700 text-xs mt-1">$$\text{CSA} = \pi rl \quad (l = \sqrt{r^2 + h^2})$$</p>
+                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                            <p class="font-semibold text-slate-800">Cone</p>
+                            <p class="font-mono text-slate-700 mt-1">$$\text{CSA} = \pi rl \quad (l = \sqrt{r^2 + h^2})$$</p>
                             <p class="font-mono text-slate-600 text-xs">$$\text{Volume} = \frac{1}{3}\pi r^2 h$$</p>
                         </div>
-                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200/80">
-                            <p class="font-semibold text-slate-800 text-xs">Sphere & Hemisphere</p>
-                            <p class="font-mono text-slate-700 text-xs mt-1">$$\text{Sphere TSA} = 4\pi r^2 \quad | \quad V = \frac{4}{3}\pi r^3$$</p>
-                            <p class="font-mono text-slate-600 text-xs">$$\text{Hemisphere TSA} = 3\pi r^2 \quad | \quad V = \frac{2}{3}\pi r^3$$</p>
+                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                            <p class="font-semibold text-slate-800">Sphere & Hemisphere</p>
+                            <p class="font-mono text-slate-700 mt-1">$$\text{Sphere } V = \frac{4}{3}\pi r^3 \quad (\text{TSA} = 4\pi r^2)$$</p>
+                            <p class="font-mono text-slate-600 text-xs">$$\text{Hemi } V = \frac{2}{3}\pi r^3 \quad (\text{TSA} = 3\pi r^2)$$</p>
                         </div>
-                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200/80">
-                            <p class="font-semibold text-slate-800 text-xs">Cuboid</p>
-                            <p class="font-mono text-slate-700 text-xs mt-1">$$\text{TSA} = 2(lb + bh + hl)$$</p>
+                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                            <p class="font-semibold text-slate-800">Cuboid</p>
+                            <p class="font-mono text-slate-700 mt-1">$$\text{TSA} = 2(lb + bh + hl)$$</p>
                             <p class="font-mono text-slate-600 text-xs">$$\text{Volume} = l \times b \times h$$</p>
                         </div>
                     </div>
                 </section>
 
                 <!-- Coordinate Geometry & Trigonometry -->
-                <section class="space-y-2.5">
-                    <h4 class="font-bold text-xs uppercase tracking-wider text-brand-700 flex items-center space-x-1.5">
-                        <span>📐</span> <span>Coordinate Geometry & Trigonometry</span>
-                    </h4>
+                <section class="space-y-2">
+                    <h4 class="font-bold text-xs uppercase tracking-wider text-brand-700">📐 Coordinate Geometry & Trigonometry</h4>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200/80">
-                            <p class="font-semibold text-slate-800 text-xs">Section & Distance Formulas</p>
-                            <p class="font-mono text-slate-700 text-xs mt-1">$$d = \sqrt{(x_2 - x_1)^2 + (y_2 - y_1)^2}$$</p>
+                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                            <p class="font-semibold text-slate-800">Distance & Section Formula</p>
+                            <p class="font-mono text-slate-700 mt-1">$$d = \sqrt{(x_2-x_1)^2 + (y_2-y_1)^2}$$</p>
                             <p class="font-mono text-slate-600 text-[11px]">$$\left(\frac{m_1 x_2 + m_2 x_1}{m_1 + m_2}, \frac{m_1 y_2 + m_2 y_1}{m_1 + m_2}\right)$$</p>
                         </div>
-                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200/80">
-                            <p class="font-semibold text-slate-800 text-xs">Pythagoras & Trig Ratios</p>
-                            <p class="font-mono text-slate-700 text-xs mt-1">$$\sin^2\theta + \cos^2\theta = 1$$</p>
-                            <p class="font-mono text-slate-600 text-xs">$$\tan\theta = \frac{\text{Opposite}}{\text{Adjacent}} = \frac{\sin\theta}{\cos\theta}$$</p>
+                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                            <p class="font-semibold text-slate-800">Trig Identities</p>
+                            <p class="font-mono text-slate-700 mt-1">$$\sin^2\theta + \cos^2\theta = 1$$</p>
+                            <p class="font-mono text-slate-600 text-xs">$$\tan\theta = \frac{\sin\theta}{\cos\theta} = \frac{\text{Opp}}{\text{Adj}}$$</p>
                         </div>
                     </div>
                 </section>
@@ -608,8 +611,8 @@
             </div>
 
             <div class="p-3 sm:p-4 border-t border-slate-100 flex justify-end bg-slate-50/50">
-                <button onclick="closeFormulaModal()" class="px-4 py-1.5 bg-slate-800 hover:bg-slate-900 text-white rounded-xl text-xs font-semibold transition">
-                    Close
+                <button onclick="closeFormulaModal()" class="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-semibold transition">
+                    Close Cheatsheet
                 </button>
             </div>
         </div>
@@ -760,17 +763,24 @@
             document.getElementById('modalOverlay').classList.add('hidden');
         }
 
-        function openFormulaModal() {
+        window.openFormulaModal = function() {
             const modal = document.getElementById('formulaModal');
-            modal.classList.remove('hidden');
-            if (window.MathJax) {
-                MathJax.typesetPromise([modal]);
+            if (modal) {
+                modal.classList.remove('hidden');
+                modal.style.display = 'flex';
+                if (window.MathJax && typeof MathJax.typesetPromise === 'function') {
+                    MathJax.typesetPromise([modal]).catch(() => {});
+                }
             }
-        }
+        };
 
-        function closeFormulaModal() {
-            document.getElementById('formulaModal').classList.add('hidden');
-        }
+        window.closeFormulaModal = function() {
+            const modal = document.getElementById('formulaModal');
+            if (modal) {
+                modal.classList.add('hidden');
+                modal.style.display = 'none';
+            }
+        };
 
         function setTopic(text) {
             document.getElementById('topicInput').value = text;
