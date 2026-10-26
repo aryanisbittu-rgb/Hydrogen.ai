@@ -68,15 +68,19 @@
 
         /* Clean Print Output */
         @media print {
+            @page { size: auto; margin: 15mm; }
             body { background: #ffffff !important; color: #000000 !important; background-image: none !important; }
             .no-print, header, footer, form, #formContainer, .no-print * { display: none !important; }
-            main { padding: 0 !important; margin: 0 !important; max-width: 100% !important; }
+            main { padding: 0 !important; margin: 0 !important; max-width: 100% !important; display: block !important; }
+            #resultsWrapper { display: block !important; width: 100% !important; }
             .paper-sheet {
                 background: #ffffff !important;
                 color: #000000 !important;
                 border: none !important;
                 box-shadow: none !important;
                 padding: 0 !important;
+                width: 100% !important;
+                max-width: 100% !important;
             }
             .paper-text-dark { color: #000000 !important; }
             .paper-subtext { color: #475569 !important; }
