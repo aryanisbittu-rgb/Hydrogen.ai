@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Hydrogen.ai — Math Worksheet Studio</title>
     
     <!-- Tailwind CSS CDN -->
@@ -50,17 +50,16 @@
             font-family: 'Plus Jakarta Sans', sans-serif;
             color: #0f172a;
             background-color: #f8fafc;
+            overflow-x: hidden;
         }
 
         .font-mono { font-family: 'JetBrains Mono', monospace; }
 
-        /* Subtle scrollbars */
         ::-webkit-scrollbar { width: 5px; height: 5px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 
-        /* Exam Paper Styling */
         .paper-sheet {
             background: #ffffff;
             border: 1px solid #e2e8f0;
@@ -68,36 +67,83 @@
             min-height: 800px;
         }
 
-        /* Clean Print Output */
+        svg {
+            max-width: 100% !important;
+            height: auto !important;
+            user-select: all !important;
+        }
+
+        .copy-selectable {
+            user-select: text !important;
+            -webkit-user-select: text !important;
+        }
+
         @media print {
-            body { background: #ffffff !important; color: #000000 !important; }
-            .no-print, header, aside, nav, button, .modal-backdrop, #tutorDrawer, #formulaModal { display: none !important; }
-            main { padding: 0 !important; margin: 0 !important; width: 100% !important; max-width: 100% !important; }
-            .paper-sheet {
+            html, body {
+                width: 100% !important;
+                height: auto !important;
+                overflow: visible !important;
                 background: #ffffff !important;
                 color: #000000 !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+            .no-print, header, aside, nav, button, .modal-backdrop, #tutorDrawer, #sidebarOverlay, #formulaModal {
+                display: none !important;
+            }
+            main, #printableSheet {
+                display: block !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                padding: 0 !important;
+                margin: 0 !important;
                 border: none !important;
                 box-shadow: none !important;
-                padding: 10px 0 !important;
-                width: 100% !important;
             }
-            .paper-border { border-color: #cbd5e1 !important; }
-            .solution-box { background: #f8fafc !important; color: #0f172a !important; border-left-color: #7c3aed !important; }
+            .paper-border {
+                border-bottom: 1px solid #cbd5e1 !important;
+                margin-bottom: 16px !important;
+            }
+            .problem-item {
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
+                margin-bottom: 20px !important;
+            }
+            details { display: block !important; }
+            summary { display: none !important; }
+            .solution-box {
+                display: block !important;
+                margin-top: 8px !important;
+                padding: 10px !important;
+                background: #f8fafc !important;
+                border-left: 3px solid #7c3aed !important;
+                font-size: 12px !important;
+                font-family: monospace !important;
+            }
+            svg {
+                display: block !important;
+                visibility: visible !important;
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
+                margin: 8px auto !important;
+            }
         }
     </style>
 </head>
-<body class="h-screen flex overflow-hidden antialiased bg-slate-50">
+<body class="h-screen flex antialiased bg-slate-50 relative overflow-hidden">
+
+    <!-- Mobile Sidebar Backdrop -->
+    <div id="sidebarOverlay" onclick="toggleSidebar()" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-30 hidden md:hidden no-print"></div>
 
     <!-- ========================================== -->
     <!-- LEFT SIDEBAR                               -->
     <!-- ========================================== -->
-    <aside class="w-64 bg-white border-r border-slate-200 flex flex-col justify-between p-4 select-none flex-shrink-0 z-20 no-print">
+    <aside id="sidebar" class="fixed md:static inset-y-0 left-0 w-72 md:w-64 bg-white border-r border-slate-200 flex flex-col justify-between p-4 select-none flex-shrink-0 z-40 transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out no-print">
         <div class="space-y-6">
-            <!-- Brand with Atom Icon -->
+            <!-- Brand -->
             <div class="flex items-center justify-between">
                 <div class="flex items-center space-x-2.5">
-                    <div class="w-8 h-8 rounded-lg bg-brand-600 flex items-center justify-center text-white shadow-sm">
-                        <!-- Atom Icon -->
+                    <div class="w-8 h-8 rounded-lg bg-brand-600 flex items-center justify-center text-white shadow-sm flex-shrink-0">
                         <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                             <circle cx="12" cy="12" r="2.5" fill="currentColor"/>
                             <ellipse cx="12" cy="12" rx="9" ry="3.5" transform="rotate(30 12 12)"/>
@@ -107,13 +153,13 @@
                     </div>
                     <span class="font-bold text-base text-slate-900 tracking-tight">hydrogen<span class="text-brand-600">.ai</span></span>
                 </div>
-                <button class="text-slate-400 hover:text-slate-600 p-1 rounded-md border border-slate-200">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"/></svg>
+                <button onclick="toggleSidebar()" class="md:hidden text-slate-400 hover:text-slate-600 p-1.5 rounded-lg border border-slate-200">
+                    ✕
                 </button>
             </div>
 
             <!-- New Worksheet Action Button -->
-            <button onclick="openModal()" class="w-full flex items-center justify-center space-x-2 py-2 px-4 rounded-xl bg-slate-50 border border-slate-200 hover:bg-slate-100 hover:border-slate-300 text-slate-800 font-medium text-xs tracking-wide transition shadow-sm">
+            <button onclick="openModal(); closeSidebarIfMobile();" class="w-full flex items-center justify-center space-x-2 py-2 px-4 rounded-xl bg-slate-50 border border-slate-200 hover:bg-slate-100 hover:border-slate-300 text-slate-800 font-medium text-xs tracking-wide transition shadow-sm">
                 <span class="font-bold text-sm">+</span>
                 <span>New worksheet</span>
                 <span class="text-slate-400 text-[10px]">↗</span>
@@ -130,26 +176,24 @@
                         </div>
                         <span class="w-1.5 h-1.5 rounded-full bg-brand-600"></span>
                     </button>
-                    <button onclick="toggleTutor()" class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 text-xs transition">
+                    <button onclick="toggleTutor(); closeSidebarIfMobile();" class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 text-xs transition">
                         <div class="flex items-center space-x-2.5">
                             <span>🤖</span>
                             <span>AI Tutor</span>
                         </div>
                         <span class="text-[9px] bg-brand-100 text-brand-700 px-1.5 py-0.5 rounded-md font-semibold">Active</span>
                     </button>
-                    <!-- Geometry Cheatsheet Button -->
-                    <button onclick="openFormulaModal()" class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 text-xs transition">
+                    <button onclick="openFormulaModal(); closeSidebarIfMobile();" class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 text-xs transition">
                         <div class="flex items-center space-x-2.5">
                             <span>📐</span>
-                            <span>Geometry Cheatsheet</span>
+                            <span>Geometry</span>
                         </div>
-                        <span class="text-[9px] bg-purple-50 text-purple-600 px-1.5 py-0.5 rounded-md font-medium">Formulas</span>
+                        <span class="text-[9px] bg-purple-50 text-purple-600 px-1.5 py-0.5 rounded-md">TikZ</span>
                     </button>
-                    <!-- Formula Cheatsheet Button -->
-                    <button onclick="openFormulaModal()" class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 text-xs transition">
+                    <button onclick="openFormulaModal(); closeSidebarIfMobile();" class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 text-xs transition">
                         <div class="flex items-center space-x-2.5">
                             <span>📖</span>
-                            <span>Formula Reference</span>
+                            <span>Formula Cheatsheet</span>
                         </div>
                         <span class="text-[9px] text-slate-400">Reference</span>
                     </button>
@@ -172,16 +216,12 @@
             </div>
         </div>
 
-        <!-- Sidebar Bottom Footer -->
+        <!-- Sidebar Bottom Footer (Settings button removed) -->
         <div class="pt-4 border-t border-slate-100 space-y-3">
             <div class="text-[11px] text-slate-400 px-2 leading-relaxed">
                 <span class="text-slate-600 font-medium">A little practice.</span> A lot of progress.<br>
                 One worksheet at a time.
             </div>
-            <button class="w-full flex items-center space-x-2 text-xs text-slate-500 hover:text-slate-800 px-2 py-1 rounded transition">
-                <span>⚙️</span>
-                <span>Settings</span>
-            </button>
             <div class="flex items-center justify-between pt-2 px-2 border-t border-slate-100">
                 <div class="flex items-center space-x-2 text-xs font-medium text-slate-700">
                     <div class="w-6 h-6 rounded-full bg-slate-200 flex items-center justify-center text-[10px] font-bold text-slate-700">U</div>
@@ -198,24 +238,29 @@
     <div class="flex-1 flex flex-col h-screen overflow-hidden bg-slate-50/70">
         
         <!-- Top App Bar -->
-        <header class="h-14 bg-white border-b border-slate-200 flex items-center justify-between px-6 flex-shrink-0 z-10 no-print">
-            <div class="flex items-center space-x-2 text-xs text-slate-500">
-                <span>Workspace</span>
-                <span class="text-slate-300">›</span>
-                <span class="text-slate-800 font-semibold">Worksheets</span>
+        <header class="h-14 bg-white border-b border-slate-200 flex items-center justify-between px-4 sm:px-6 flex-shrink-0 z-10 no-print">
+            <div class="flex items-center space-x-2 sm:space-x-3">
+                <button onclick="toggleSidebar()" class="md:hidden p-1.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"/></svg>
+                </button>
+                <div class="flex items-center space-x-1.5 text-xs text-slate-500">
+                    <span class="hidden sm:inline">Workspace</span>
+                    <span class="text-slate-300 hidden sm:inline">›</span>
+                    <span class="text-slate-800 font-semibold">Worksheets</span>
+                </div>
             </div>
 
-            <div class="flex items-center space-x-2">
-                <button onclick="toggleTutor()" class="px-3 py-1.5 text-xs font-medium rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-50 transition flex items-center space-x-1.5">
+            <div class="flex items-center space-x-1.5 sm:space-x-2">
+                <button onclick="toggleTutor()" class="px-2.5 sm:px-3 py-1.5 text-xs font-medium rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-50 transition flex items-center space-x-1.5">
                     <span>🤖</span>
                     <span>AI Tutor</span>
                 </button>
-                <button onclick="openModal()" class="px-3 py-1.5 text-xs font-semibold bg-brand-600 text-white rounded-lg hover:bg-brand-700 transition shadow-sm">
+                <button onclick="openModal()" class="px-2.5 sm:px-3 py-1.5 text-xs font-semibold bg-brand-600 text-white rounded-lg hover:bg-brand-700 transition shadow-sm">
                     + New
                 </button>
-                <button onclick="triggerMobileSafePrint()" class="px-3 py-1.5 text-xs font-medium bg-white text-slate-700 border border-slate-200 rounded-lg hover:bg-slate-50 transition flex items-center space-x-1.5 shadow-sm">
+                <button onclick="triggerMobileSafePrint()" class="px-2.5 sm:px-3 py-1.5 text-xs font-medium bg-white text-slate-700 border border-slate-200 rounded-lg hover:bg-slate-50 transition flex items-center space-x-1.5 shadow-sm">
                     <span>🖨️</span>
-                    <span>Print</span>
+                    <span class="hidden sm:inline">Print</span>
                 </button>
             </div>
         </header>
@@ -243,14 +288,14 @@
                                 ✔ Answer key
                             </button>
                         </div>
-                        <button onclick="openModal()" class="px-3 py-1.5 text-xs font-medium rounded-xl border border-slate-200 text-slate-600 hover:bg-white bg-white/60 transition shadow-sm">
+                        <button onclick="openModal()" class="px-3 py-1.5 text-xs font-medium rounded-xl border border-slate-200 text-slate-600 hover:bg-white bg-white/60 transition shadow-sm hidden sm:inline-block">
                             ↺ Use topic again
                         </button>
                     </div>
                 </div>
 
                 <!-- Printable Paper Sheet Card -->
-                <div id="printableSheet" class="paper-sheet rounded-2xl p-8 sm:p-12 text-slate-900">
+                <div id="printableSheet" class="paper-sheet rounded-2xl p-8 sm:p-12 text-slate-900 copy-selectable">
                     
                     <!-- Paper Header with Atom Icon -->
                     <div class="border-b border-slate-200 pb-6 mb-8 paper-border">
@@ -287,7 +332,7 @@
                         </div>
                     </div>
 
-                    <!-- Questions Container (10 Mixed Questions) -->
+                    <!-- Questions Container (10 Pre-loaded Mixed Questions) -->
                     <div id="questionsContainer" class="space-y-8">
                         
                         <!-- Problem 01: Geometry with SVG Diagram -->
@@ -298,7 +343,7 @@
                                     In parallelogram $ABCD$, base $AB = 9\text{ cm}$ and perpendicular height from $D$ to $AB$ is $7\text{ cm}$. Calculate the area of parallelogram $ABCD$.
                                 </div>
                             </div>
-                            <div class="flex justify-center my-4">
+                            <div class="diagram-box flex justify-center my-4">
                                 <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 max-w-sm w-full flex justify-center">
                                     <svg viewBox="0 0 260 130" class="w-64 h-32">
                                         <polygon points="50,105 195,105 225,30 80,30" fill="rgba(124, 58, 237, 0.05)" stroke="#7C3AED" stroke-width="2"/>
@@ -347,7 +392,7 @@
                                     A tower stands vertically on the ground. From a point on the ground $30\text{ m}$ away from the foot of the tower, the angle of elevation of its top is $30^\circ$. Find the height of the tower.
                                 </div>
                             </div>
-                            <div class="flex justify-center my-4">
+                            <div class="diagram-box flex justify-center my-4">
                                 <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 max-w-sm w-full flex justify-center">
                                     <svg viewBox="0 0 240 120" class="w-60 h-28">
                                         <line x1="30" y1="100" x2="200" y2="100" stroke="#64748B" stroke-width="2"/>
@@ -627,7 +672,6 @@
             <div class="flex justify-between items-center border-b border-slate-100 pb-3">
                 <div class="flex items-center space-x-2">
                     <div class="w-6 h-6 rounded-md bg-brand-600 text-white flex items-center justify-center">
-                        <!-- Atom Icon inside modal -->
                         <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <circle cx="12" cy="12" r="2.5" fill="currentColor"/>
                             <ellipse cx="12" cy="12" rx="9" ry="3.5" transform="rotate(30 12 12)"/>
@@ -684,7 +728,6 @@
                     </div>
                 </div>
 
-                <!-- Worksheet Type, Question Style & Count -->
                 <div class="grid grid-cols-3 gap-3">
                     <div>
                         <label class="block text-xs font-semibold text-slate-600 mb-1">Worksheet Type</label>
@@ -755,6 +798,22 @@
         let currentProblems = [];
         let chatHistory = [];
 
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            sidebar.classList.toggle('-translate-x-full');
+            overlay.classList.toggle('hidden');
+        }
+
+        function closeSidebarIfMobile() {
+            if (window.innerWidth < 768) {
+                const sidebar = document.getElementById('sidebar');
+                const overlay = document.getElementById('sidebarOverlay');
+                sidebar.classList.add('-translate-x-full');
+                overlay.classList.add('hidden');
+            }
+        }
+
         function openModal() {
             document.getElementById('modalOverlay').classList.remove('hidden');
         }
@@ -820,7 +879,6 @@
             const originalIframes = sheetElement.querySelectorAll('iframe');
             const clonedIframes = sheetClone.querySelectorAll('iframe');
 
-            // Extract TikZ SVGs from iframes to bypass mobile print engine restrictions
             originalIframes.forEach((origIframe, index) => {
                 try {
                     const iframeDoc = origIframe.contentDocument || origIframe.contentWindow.document;
@@ -948,7 +1006,7 @@
                 }
 
                 const data = await response.json();
-                currentProblems = data.worksheet;
+                currentProblems = data.worksheet || data;
 
                 // Sync Headings & Badges
                 document.getElementById('sheetMainTitle').innerText = topic;
@@ -999,13 +1057,22 @@
                     `;
                     const encodedIframe = encodeURIComponent(iframeDoc);
                     return `
-                        <div class="flex justify-center my-4">
+                        <div class="diagram-box flex justify-center my-4">
                             <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 max-w-md w-full flex justify-center shadow-inner">
                                 <iframe src="data:text/html;charset=utf-8,${encodedIframe}" style="width:100%; height:200px; border:none;" scrolling="no"></iframe>
                             </div>
                         </div>
                     `;
                 });
+
+                // Check for dedicated svg_diagram property
+                const diagramHtml = (item.svg_diagram && item.svg_diagram.trim() !== "" && item.svg_diagram !== "null") ? `
+                    <div class="diagram-box flex justify-center my-4">
+                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 max-w-sm w-full flex justify-center overflow-hidden">
+                            ${item.svg_diagram}
+                        </div>
+                    </div>
+                ` : '';
 
                 const problemDiv = document.createElement('div');
                 problemDiv.className = "problem-item space-y-3 pt-6 first:pt-0 border-t border-slate-200/80 first:border-0";
@@ -1014,7 +1081,7 @@
                         <span class="font-mono font-bold text-slate-400 text-sm select-none">${qNum}</span>
                         <div class="text-slate-900 flex-1">${probText}</div>
                     </div>
-                    
+                    ${diagramHtml}
                     <details class="solution-toggle group no-print">
                         <summary class="cursor-pointer text-xs font-semibold text-slate-500 hover:text-brand-600 select-none transition">
                             › Show solution
