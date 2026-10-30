@@ -604,6 +604,136 @@ window.handleTutorForm = async function(e) {
 };
 
 // ============================================
+// CLERK AUTHENTICATION
+// ============================================
+
+/**
+ * Clerk authentication state
+ * @type {Object}
+ */
+window.clerkState = {
+  isSignedIn: false,
+  user: null,
+  token: null
+};
+
+/**
+ * Handle Clerk authentication (sign in/out)
+ * @function
+ */
+window.handleClerkAuth = function() {
+  if (window.clerkState.isSignedIn) {
+    // Sign out
+    Clerk.signOut().then(() => {
+      window.clerkState.isSignedIn = false;
+      window.clerkState.user = null;
+      window.clerkState.token = null;
+      updateClerkUI();
+    });
+  } else {
+    // Sign in
+    Clerk.openSignIn();
+  }
+};
+
+/**
+ * Update Clerk UI based on auth state
+ * @function
+ */
+function updateClerkUI() {
+  const button = document.getElementById('clerkSignInBtn');
+  const buttonText = document.getElementById('clerkButtonText');
+  const userInfo = document.getElementById('clerkUserInfo');
+  
+  if (button && buttonText) {
+    if (window.clerkState.isSignedIn && window.clerkState.user) {
+      buttonText.textContent = 'Sign Out';
+      if (userInfo) {
+        userInfo.textContent = `Signed in as: ${window.clerkState.user.emailAddresses[0]?.emailAddress || 'User'}`;
+        userInfo.classList.remove('hidden');
+      }
+    } else {
+      buttonText.textContent = 'Sign In';
+      if (userInfo) {
+        userInfo.textContent = '';
+        userInfo.classList.add('hidden');
+      }
+    }
+  }
+}
+
+/**
+ * Initialize Clerk authentication
+ * @function
+ */
+async function initClerk() {
+  try {
+    const publishableKey = window.HydrogenConfig?.CLERK_PUBLISHABLE_KEY;
+    
+    if (!publishableKey || publishableKey === 'pk_test_YOUR_CLERK_PUBLISHABLE_KEY_HERE') {
+      console.warn('Clerk publishable key not configured. Authentication will be disabled.');
+      // Hide auth button if no key
+      const button = document.getElementById('clerkSignInBtn');
+      if (button) button.style.display = 'none';
+      return;
+    }
+    
+    await Clerk.load({ publishableKey: publishableKey });
+    
+    // Check current session
+    const user = await Clerk.session.getToken();
+    
+    if (user) {
+      window.clerkState.isSignedIn = true;
+      window.clerkState.user = user;
+      window.clerkState.token = user;
+    }
+    
+    // Listen for auth state changes
+    Clerk.addListener(({ user }) => {
+      if (user) {
+        window.clerkState.isSignedIn = true;
+        window.clerkState.user = user;
+        window.clerkState.token = user;
+      } else {
+        window.clerkState.isSignedIn = false;
+        window.clerkState.user = null;
+        window.clerkState.token = null;
+      }
+      updateClerkUI();
+    });
+    
+    // Initial UI update
+    updateClerkUI();
+    
+    console.log('Clerk authentication initialized successfully');
+  } catch (error) {
+    console.error('Failed to initialize Clerk:', error);
+    // Hide auth button on error
+    const button = document.getElementById('clerkSignInBtn');
+    if (button) button.style.display = 'none';
+  }
+}
+
+/**
+ * Get current Clerk token for API calls
+ * @function
+ * @returns {Promise<string|null>} The auth token or null
+ */
+async function getClerkToken() {
+  if (!window.clerkState.isSignedIn) {
+    return null;
+  }
+  try {
+    const token = await Clerk.session.getToken();
+    return token || window.clerkState.token;
+  } catch (error) {
+    console.error('Failed to get Clerk token:', error);
+    return null;
+  }
+}
+
+// ============================================
 // INITIALIZATION
 // ============================================
 
@@ -614,6 +744,9 @@ window.handleTutorForm = async function(e) {
 window.initApp = function() {
   const state = window.HydrogenState;
   const CONFIG = window.HydrogenConfig;
+  
+  // Initialize Clerk authentication
+  initClerk();
   
   // Initialize grade select
   (function () {
