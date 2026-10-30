@@ -5,9 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Hydrogen.ai — Math Worksheet Studio</title>
 
-<!-- Clerk Authentication SDK -->
-<script src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@4/dist/clerk.browser.js"></script>
-
 <script src="https://cdn.tailwindcss.com"></script>
 <script>
 tailwind.config = { theme: { extend: { colors: { brand: {
@@ -16,7 +13,7 @@ tailwind.config = { theme: { extend: { colors: { brand: {
 
 <script>
 window.MathJax = {
-  tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], processEscapes: true },
+  tex: { inlineMath: [['$', '$'], ['\\(', '\\\)']], processEscapes: true },
   svg: { fontCache: 'global' }
 };
 </script>
@@ -98,7 +95,7 @@ mjx-container svg { max-width:100%; }
 <div id="sidebarBackdrop" onclick="toggleSidebar(false)" class="fixed inset-0 bg-slate-900/40 z-30 hidden md:hidden no-print" aria-hidden="true"></div>
 
 <aside id="sidebar" class="fixed md:static inset-y-0 left-0 z-40 w-64 -translate-x-full md:translate-x-0 transition-transform duration-200 bg-white border-r border-slate-200 flex flex-col justify-between p-4 select-none flex-shrink-0 no-print" aria-label="Main navigation" aria-hidden="false">
-  <div class="space-y-6">
+  <div class="space-y-4">
     <div class="flex items-center space-x-2.5">
       <div class="w-8 h-8 rounded-lg bg-brand-600 flex items-center justify-center text-white shadow-sm" role="img" aria-label="Hydrogen.ai logo">
         <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
@@ -115,7 +112,15 @@ mjx-container svg { max-width:100%; }
       <span class="font-bold text-sm" aria-hidden="true">+</span><span>New worksheet</span>
     </button>
 
-    <nav class="space-y-1" aria-label="Workspace navigation">
+    <!-- Clerk Sign In/Out Button in Sidebar - PURE HTML, NO DEPENDENCIES -->
+    <button id="clerkSignInBtn" onclick="handleClerkAuth()" style="display:block; width:100%; padding:12px 16px; background-color:#7c3aed; color:white; font-weight:bold; font-size:14px; border:3px solid #4c1d95; border-radius:12px; cursor:pointer; margin:8px 0; box-shadow:0 4px 12px rgba(124,58,237,0.4);">
+      <span>👤</span><span id="clerkButtonText">Sign In / Sign Up</span>
+    </button>
+    
+    <!-- User Info Display -->
+    <p id="clerkUserInfo" style="text-align:center; color:#7c3aed; font-size:11px; font-weight:500; margin:0; padding:4px 0;" aria-label="Current user"></p>
+
+    <nav class="space-y-1 pt-2" aria-label="Workspace navigation">
       <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400 px-2 pb-1">Workspace</p>
       <button class="w-full flex items-center justify-between px-3 py-2 rounded-xl bg-brand-50/80 text-brand-700 font-semibold text-xs border border-brand-100" aria-current="page">
         <span>📄 Worksheets</span><span class="w-1.5 h-1.5 rounded-full bg-brand-600" aria-hidden="true"></span>
@@ -155,10 +160,6 @@ mjx-container svg { max-width:100%; }
       <button onclick="openModal()" class="px-3 py-1.5 text-xs font-semibold bg-brand-600 text-white rounded-lg hover:bg-brand-700 shadow-sm" aria-label="Create new worksheet">+ New</button>
       <button onclick="printSheet(false)" class="px-2.5 py-1.5 text-xs font-medium bg-white text-slate-700 border border-slate-200 rounded-lg hover:bg-slate-50 shadow-sm" title="Print student copy" aria-label="Print student worksheet">🖨️ <span class="hidden sm:inline">Student</span></button>
       <button onclick="printSheet(true)" class="px-2.5 py-1.5 text-xs font-medium bg-white text-slate-700 border border-slate-200 rounded-lg hover:bg-slate-50 shadow-sm" title="Print with answers" aria-label="Print worksheet with answers">🖨️ <span class="hidden sm:inline">With answers</span></button>
-      <!-- Clerk Sign In/Out Button -->
-      <button id="clerkSignInBtn" onclick="handleClerkAuth()" class="px-2.5 py-1.5 text-xs font-medium bg-white text-slate-700 border border-slate-200 rounded-lg hover:bg-slate-50 shadow-sm" aria-label="Sign in or manage account">👤 <span class="hidden sm:inline" id="clerkButtonText">Sign In</span></button>
-      <!-- User Info Display -->
-      <span id="clerkUserInfo" class="text-xs text-slate-500 hidden sm:inline" aria-label="Current user"></span>
     </div>
   </header>
 
@@ -278,6 +279,9 @@ mjx-container svg { max-width:100%; }
 </div>
 
 <div id="toast" class="fixed bottom-4 right-4 z-50 hidden" role="alert" aria-live="polite" aria-atomic="true"></div>
+
+<!-- Clerk Authentication SDK -->
+<script src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@4/dist/clerk.browser.js"></script>
 
 <!-- Load configuration first -->
 <script src="js/config.js"></script>
