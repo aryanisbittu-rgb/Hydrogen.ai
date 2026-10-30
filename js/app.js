@@ -652,36 +652,24 @@ window.clerkState = {
  * @function
  */
 window.handleClerkAuth = async function() {
-  // Check if window.Clerk exists
   if (!window.Clerk) {
-    alert('Clerk SDK is not loaded. Please check your internet connection and try again.');
+    alert('Clerk SDK is not loaded. Please check your internet connection.');
     return;
   }
 
   const clerk = window.Clerk;
 
   try {
-    // Ensure Clerk is loaded with publishableKey before opening UI components
-    const publishableKey = window.HydrogenConfig?.CLERK_PUBLISHABLE_KEY || clerk.publishableKey;
-    if (publishableKey) {
-      await clerk.load({ publishableKey });
-    }
-
     if (clerk.user) {
-      // Sign out
       await clerk.signOut();
-      window.clerkState.isSignedIn = false;
-      window.clerkState.user = null;
-      window.clerkState.token = null;
-      updateClerkUI();
       window.location.reload();
     } else {
-      // Open sign in modal
-      await clerk.openSignIn();
+      // Use redirectToSignIn() to avoid needing UI component bundle dependencies
+      await clerk.redirectToSignIn();
     }
   } catch (error) {
     console.error('Clerk authentication error:', error);
-    alert('Authentication error. Please check your Clerk configuration.');
+    alert('Authentication error. Please check your console.');
   }
 };
 
@@ -724,7 +712,6 @@ function updateClerkUI() {
  */
 async function initClerk() {
   try {
-    // Wait for window.Clerk script from CDN to mount
     let retries = 0;
     while (!window.Clerk && retries < 30) {
       await new Promise(res => setTimeout(res, 100));
@@ -737,20 +724,15 @@ async function initClerk() {
     }
 
     const clerk = window.Clerk;
-    const publishableKey = window.HydrogenConfig?.CLERK_PUBLISHABLE_KEY;
 
-    if (publishableKey && publishableKey !== 'pk_test_YOUR_CLERK_PUBLISHABLE_KEY_HERE') {
-      await clerk.load({ publishableKey });
-    } else {
+    if (!clerk.isReady()) {
       await clerk.load();
     }
 
     console.log('Clerk SDK loaded successfully');
 
-    // Update UI initial state
     updateClerkUI();
 
-    // Listen for auth state changes
     clerk.addListener(({ user, session }) => {
       window.clerkState.isSignedIn = !!user;
       window.clerkState.user = user || null;
