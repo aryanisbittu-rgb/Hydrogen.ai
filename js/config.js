@@ -1,46 +1,105 @@
-/**
- * Configuration Module
- * Centralized configuration for the Hydrogen.ai Math Worksheet Studio
- * 
- * @module config
- */
+// ============================================
+// CLERK AUTHENTICATION
+// ============================================
 
-/**
- * Application Configuration
- * @typedef {Object} AppConfig
- * @property {string} BACKEND_URL - Base URL for the backend API
- * @property {string} API_ENDPOINT - Endpoint for worksheet generation
- * @property {string} TUTOR_ENDPOINT - Endpoint for AI tutor
- * @property {string} STORE_KEY - Key for localStorage
- * @property {number} REQUEST_TIMEOUT_MS - Timeout for API requests (90 seconds)
- * @property {number} SLOW_RESPONSE_MS - Time after which to show "Waking server" message (6 seconds)
- * @property {number} RATE_LIMIT_DELAY_MS - Minimum delay between API calls (1000ms)
- * @property {number} MAX_RETRIES - Maximum number of retry attempts for failed requests
- * @property {string} CLERK_PUBLISHABLE_KEY - Clerk publishable key for authentication
- */
-
-/** @type {AppConfig} */
-const CONFIG = {
-  // Allow BACKEND_URL to be overridden via query parameter: ?backend_url=https://custom-api.example.com
-  BACKEND_URL: (function() {
-    const params = new URLSearchParams(window.location.search);
-    return params.get('backend_url') || 'https://my-math.onrender.com';
-  })(),
-  API_ENDPOINT: null, // Will be set below
-  TUTOR_ENDPOINT: null, // Will be set below
-  STORE_KEY: 'hydrogen.sheet.v2',
-  REQUEST_TIMEOUT_MS: 90000,
-  SLOW_RESPONSE_MS: 6000,
-  RATE_LIMIT_DELAY_MS: 1000,
-  MAX_RETRIES: 2,
-  // Clerk Authentication - Add your publishable key here
-  // Get it from: https://dashboard.clerk.com → Your App → API Keys
-  CLERK_PUBLISHABLE_KEY: 'pk_test_cHJvdmVuLWhlcm9uLTg4NjMuY2xlcmsuYWNjb3VudHMuZGV2JA'
+window.clerkState = {
+  isSignedIn: false,
+  user: null,
+  token: null
 };
 
-// Initialize endpoints based on BACKEND_URL
-CONFIG.API_ENDPOINT = CONFIG.BACKEND_URL + '/generate';
-CONFIG.TUTOR_ENDPOINT = CONFIG.BACKEND_URL + '/tutor';
+/**
+ * Handle Clerk authentication (sign in/out)
+ */
+window.handleClerkAuth = async function() {
+  if (!window.Clerk) {
+    alert('Clerk SDK is not loaded. Please check your internet connection.');
+    return;
+  }
 
-// Export CONFIG to global scope for other modules
-window.HydrogenConfig = CONFIG;
+  const clerk = window.Clerk;
+
+  try {
+    if (clerk.user) {
+      await clerk.signOut();
+      window.location.reload();
+    } else {
+      // openSignIn is available on the auto-initialized Clerk instance
+      await clerk.openSignIn();
+    }
+  } catch (error) {
+    console.error('Clerk authentication error:', error);
+    alert('Authentication error. Please check your console.');
+  }
+};
+
+/**
+ * Update Clerk UI based on auth state
+ */
+function updateClerkUI() {
+  const button = document.getElementById('clerkSignInBtn');
+  const buttonText = document.getElementById('clerkButtonText');
+  const userInfo = document.getElementById('clerkUserInfo');
+  const clerk = window.Clerk;
+
+  const isSignedIn = clerk && clerk.user;
+  window.clerkState.isSignedIn = !!isSignedIn;
+  window.clerkState.user = clerk ? clerk.user : null;
+
+  if (button && buttonText) {
+    if (isSignedIn && clerk.user) {
+      buttonText.textContent = 'Sign Out';
+      if (userInfo) {
+        userInfo.textContent = `Signed in as: ${clerk.user.primaryEmailAddress?.emailAddress || 'User'}`;
+        userInfo.style.display = 'block';
+      }
+    } else {
+      buttonText.textContent = 'Sign In / Sign Up';
+      if (userInfo) {
+        userInfo.textContent = '';
+        userInfo.style.display = 'none';
+      }
+    }
+  }
+}
+
+/**
+ * Initialize Clerk authentication
+ */
+async function initClerk() {
+  try {
+    // Poll for window.Clerk to be ready from CDN
+    let retries = 0;
+    while (!window.Clerk && retries < 30) {
+      await new Promise(res => setTimeout(res, 100));
+      retries++;
+    }
+
+    if (!window.Clerk) {
+      console.warn('Clerk script not loaded.');
+      return;
+    }
+
+    const clerk = window.Clerk;
+
+    // DO NOT call clerk.load() manually if using data-clerk-publishable-key attribute in HTML!
+    // Simply wait for Clerk to be loaded by the CDN script:
+    if (!clerk.isReady()) {
+      await clerk.load();
+    }
+
+    console.log('Clerk SDK ready');
+
+    updateClerkUI();
+
+    clerk.addListener(({ user, session }) => {
+      window.clerkState.isSignedIn = !!user;
+      window.clerkState.user = user || null;
+      window.clerkState.token = session?.token || null;
+      updateClerkUI();
+    });
+
+  } catch (error) {
+    console.error('Failed to initialize Clerk:', error);
+  }
+}
