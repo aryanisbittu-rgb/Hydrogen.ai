@@ -16,6 +16,7 @@
  * @property {number} SLOW_RESPONSE_MS - Time after which to show "Waking server" message (6 seconds)
  * @property {number} RATE_LIMIT_DELAY_MS - Minimum delay between API calls (1000ms)
  * @property {number} MAX_RETRIES - Maximum number of retry attempts for failed requests
+ * @property {string} CLERK_PUBLISHABLE_KEY - Clerk publishable key for authentication
  */
 
 /** @type {AppConfig} */
@@ -31,7 +32,10 @@ const CONFIG = {
   REQUEST_TIMEOUT_MS: 90000,
   SLOW_RESPONSE_MS: 6000,
   RATE_LIMIT_DELAY_MS: 1000,
-  MAX_RETRIES: 2
+  MAX_RETRIES: 2,
+  // Clerk Authentication - Add your publishable key here
+  // Get it from: https://dashboard.clerk.com → Your App → API Keys
+  CLERK_PUBLISHABLE_KEY: 'pk_test_cHJvdmVuLWhlcm9uLTg4NjMuY2xlcmsuYWNjb3VudHMuZGV2JA'
 };
 
 // Initialize endpoints based on BACKEND_URL
