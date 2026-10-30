@@ -622,17 +622,34 @@ window.clerkState = {
  * @function
  */
 window.handleClerkAuth = function() {
-  if (window.clerkState.isSignedIn) {
-    // Sign out
-    Clerk.signOut().then(() => {
-      window.clerkState.isSignedIn = false;
-      window.clerkState.user = null;
-      window.clerkState.token = null;
-      updateClerkUI();
-    });
-  } else {
-    // Sign in
-    Clerk.openSignIn();
+  // Check if Clerk is loaded
+  if (typeof Clerk === 'undefined') {
+    alert('Clerk SDK is not loaded. Please check your internet connection and try again.');
+    return;
+  }
+  
+  try {
+    if (window.clerkState.isSignedIn) {
+      // Sign out
+      Clerk.signOut().then(() => {
+        window.clerkState.isSignedIn = false;
+        window.clerkState.user = null;
+        window.clerkState.token = null;
+        updateClerkUI();
+      }).catch(error => {
+        console.error('Sign out error:', error);
+        alert('Failed to sign out. Please try again.');
+      });
+    } else {
+      // Sign in
+      Clerk.openSignIn().catch(error => {
+        console.error('Sign in error:', error);
+        alert('Failed to open sign in. Please try again.');
+      });
+    }
+  } catch (error) {
+    console.error('Clerk authentication error:', error);
+    alert('Authentication error. Please check your Clerk configuration.');
   }
 };
 
@@ -650,13 +667,13 @@ function updateClerkUI() {
       buttonText.textContent = 'Sign Out';
       if (userInfo) {
         userInfo.textContent = `Signed in as: ${window.clerkState.user.emailAddresses[0]?.emailAddress || 'User'}`;
-        userInfo.classList.remove('hidden');
+        userInfo.style.display = 'block';
       }
     } else {
-      buttonText.textContent = 'Sign In';
+      buttonText.textContent = 'Sign In / Sign Up';
       if (userInfo) {
         userInfo.textContent = '';
-        userInfo.classList.add('hidden');
+        userInfo.style.display = 'none';
       }
     }
   }
@@ -672,33 +689,42 @@ async function initClerk() {
     
     if (!publishableKey || publishableKey === 'pk_test_YOUR_CLERK_PUBLISHABLE_KEY_HERE') {
       console.warn('Clerk publishable key not configured. Authentication will be disabled.');
-      // Hide auth button if no key
-      const button = document.getElementById('clerkSignInBtn');
-      if (button) button.style.display = 'none';
+      // Button stays visible but will show warning when clicked
       return;
     }
     
+    // Load Clerk SDK
     await Clerk.load({ publishableKey: publishableKey });
+    console.log('Clerk SDK loaded successfully');
     
-    // Check current session
-    const user = await Clerk.session.getToken();
+    // Check current user/session - Clerk.user and Clerk.session are available after load
+    const user = Clerk.user;
+    const session = Clerk.session;
     
     if (user) {
       window.clerkState.isSignedIn = true;
       window.clerkState.user = user;
-      window.clerkState.token = user;
+      window.clerkState.token = session?.token || null;
+      console.log('User signed in:', user.emailAddresses?.[0]?.emailAddress);
+    } else {
+      window.clerkState.isSignedIn = false;
+      window.clerkState.user = null;
+      window.clerkState.token = null;
+      console.log('No user signed in');
     }
     
     // Listen for auth state changes
-    Clerk.addListener(({ user }) => {
+    Clerk.addListener(({ user, session }) => {
       if (user) {
         window.clerkState.isSignedIn = true;
         window.clerkState.user = user;
-        window.clerkState.token = user;
+        window.clerkState.token = session?.token || null;
+        console.log('User signed in via listener:', user.emailAddresses?.[0]?.emailAddress);
       } else {
         window.clerkState.isSignedIn = false;
         window.clerkState.user = null;
         window.clerkState.token = null;
+        console.log('User signed out via listener');
       }
       updateClerkUI();
     });
@@ -709,9 +735,7 @@ async function initClerk() {
     console.log('Clerk authentication initialized successfully');
   } catch (error) {
     console.error('Failed to initialize Clerk:', error);
-    // Hide auth button on error
-    const button = document.getElementById('clerkSignInBtn');
-    if (button) button.style.display = 'none';
+    // Button stays visible even on error
   }
 }
 
