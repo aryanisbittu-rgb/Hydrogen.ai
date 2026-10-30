@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Hydrogen.ai — Math Worksheet Studio</title>
 
+<!-- Clerk Authentication SDK -->
+<script src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@4/dist/clerk.browser.js"></script>
+
 <script src="https://cdn.tailwindcss.com"></script>
 <script>
 tailwind.config = { theme: { extend: { colors: { brand: {
@@ -152,6 +155,10 @@ mjx-container svg { max-width:100%; }
       <button onclick="openModal()" class="px-3 py-1.5 text-xs font-semibold bg-brand-600 text-white rounded-lg hover:bg-brand-700 shadow-sm" aria-label="Create new worksheet">+ New</button>
       <button onclick="printSheet(false)" class="px-2.5 py-1.5 text-xs font-medium bg-white text-slate-700 border border-slate-200 rounded-lg hover:bg-slate-50 shadow-sm" title="Print student copy" aria-label="Print student worksheet">🖨️ <span class="hidden sm:inline">Student</span></button>
       <button onclick="printSheet(true)" class="px-2.5 py-1.5 text-xs font-medium bg-white text-slate-700 border border-slate-200 rounded-lg hover:bg-slate-50 shadow-sm" title="Print with answers" aria-label="Print worksheet with answers">🖨️ <span class="hidden sm:inline">With answers</span></button>
+      <!-- Clerk Sign In/Out Button -->
+      <button id="clerkSignInBtn" onclick="handleClerkAuth()" class="px-2.5 py-1.5 text-xs font-medium bg-white text-slate-700 border border-slate-200 rounded-lg hover:bg-slate-50 shadow-sm" aria-label="Sign in or manage account">👤 <span class="hidden sm:inline" id="clerkButtonText">Sign In</span></button>
+      <!-- User Info Display -->
+      <span id="clerkUserInfo" class="text-xs text-slate-500 hidden sm:inline" aria-label="Current user"></span>
     </div>
   </header>
 
