@@ -11,7 +11,6 @@
 
 /**
  * Open the worksheet generation modal
- * 
  * @function
  */
 window.openModal = function() {
@@ -42,7 +41,6 @@ window.openModal = function() {
 
 /**
  * Close the worksheet generation modal
- * 
  * @function
  */
 window.closeModal = function() {
@@ -62,9 +60,7 @@ window.closeModal = function() {
 
 /**
  * Set the topic input value
- * 
- * @param {string} t Topic to set
- * 
+ * @param {string} t - Topic to set
  * @function
  */
 window.setTopic = function(t) {
@@ -73,9 +69,7 @@ window.setTopic = function(t) {
 
 /**
  * Toggle sidebar visibility
- * 
- * @param {boolean} force Force open or close (optional)
- * 
+ * @param {boolean} force - Force open or close (optional)
  * @function
  */
 window.toggleSidebar = function(force) {
@@ -100,9 +94,7 @@ window.toggleSidebar = function(force) {
 
 /**
  * Toggle AI tutor drawer
- * 
- * @param {boolean} force Force open or close (optional)
- * 
+ * @param {boolean} force - Force open or close (optional)
  * @function
  */
 window.toggleTutor = function(force) {
@@ -139,9 +131,7 @@ window.toggleTutor = function(force) {
 
 /**
  * Toggle solution visibility for a problem
- * 
- * @param {HTMLElement} btn Button element that was clicked
- * 
+ * @param {HTMLElement} btn - Button element that was clicked
  * @function
  */
 window.toggleSolution = function(btn) {
@@ -153,9 +143,7 @@ window.toggleSolution = function(btn) {
 
 /**
  * Switch between worksheet and solutions view
- * 
- * @param {string} mode View mode ('worksheet' or 'solutions')
- * 
+ * @param {string} mode - View mode ('worksheet' or 'solutions')
  * @function
  */
 window.switchView = function(mode) {
@@ -185,9 +173,7 @@ window.switchView = function(mode) {
 
 /**
  * Print the worksheet (student copy or with answers)
- * 
- * @param {boolean} withAnswers Whether to include answers
- * 
+ * @param {boolean} withAnswers - Whether to include answers
  * @function
  */
 window.printSheet = function(withAnswers) {
@@ -215,9 +201,7 @@ window.printSheet = function(withAnswers) {
 
 /**
  * Apply metadata to UI elements
- * 
- * @param {Object|null} m Worksheet metadata
- * 
+ * @param {Object|null} m - Worksheet metadata
  * @function
  */
 window.applyMeta = function(m) {
@@ -234,9 +218,7 @@ window.applyMeta = function(m) {
 
 /**
  * Render the entire worksheet with problems, diagrams, and solutions
- * 
- * @param {Array<Object>} problems Array of problem objects
- * 
+ * @param {Array<Object>} problems - Array of problem objects
  * @function
  */
 window.renderWorksheet = function(problems) {
@@ -316,9 +298,7 @@ window.renderWorksheet = function(problems) {
 
 /**
  * Show generation error with sample worksheet option
- * 
- * @param {Error} err Error object
- * 
+ * @param {Error} err - Error object
  * @function
  */
 window.showGenError = function(err) {
@@ -348,7 +328,6 @@ window.showGenError = function(err) {
 
 /**
  * Load sample worksheet for demonstration
- * 
  * @function
  */
 window.loadSample = function() {
@@ -408,9 +387,7 @@ window.loadSample = function() {
 
 /**
  * Handle worksheet generation form submission
- * 
- * @param {Event} e Form submit event
- * 
+ * @param {Event} e - Form submit event
  * @function
  */
 window.handleGenerateForm = async function(e) {
@@ -508,9 +485,7 @@ window.handleGenerateForm = async function(e) {
 
 /**
  * Generate context string from current worksheet problems
- * 
  * @returns {string} Worksheet context for AI tutor
- * 
  * @function
  */
 window.worksheetContext = function() {
@@ -527,7 +502,6 @@ window.worksheetContext = function() {
 
 /**
  * Render chat messages in the tutor drawer
- * 
  * @function
  */
 window.renderChat = function() {
@@ -564,9 +538,7 @@ window.renderChat = function() {
 
 /**
  * Handle tutor form submission
- * 
- * @param {Event} e Form submit event
- * 
+ * @param {Event} e - Form submit event
  * @function
  */
 window.handleTutorForm = async function(e) {
@@ -637,7 +609,6 @@ window.handleTutorForm = async function(e) {
 
 /**
  * Clerk authentication state
- * 
  * @type {Object}
  */
 window.clerkState = {
@@ -648,51 +619,54 @@ window.clerkState = {
 
 /**
  * Handle Clerk authentication (sign in/out)
- * 
  * @function
  */
-window.handleClerkAuth = async function() {
-  if (!window.Clerk) {
-    alert('Clerk SDK is not loaded. Please check your internet connection.');
+window.handleClerkAuth = function() {
+  // Check if Clerk is loaded
+  if (typeof Clerk === 'undefined') {
+    alert('Clerk SDK is not loaded. Please check your internet connection and try again.');
     return;
   }
-
-  const clerk = window.Clerk;
-
+  
   try {
-    if (clerk.user) {
-      await clerk.signOut();
-      window.location.reload();
+    if (window.clerkState.isSignedIn) {
+      // Sign out
+      Clerk.signOut().then(() => {
+        window.clerkState.isSignedIn = false;
+        window.clerkState.user = null;
+        window.clerkState.token = null;
+        updateClerkUI();
+      }).catch(error => {
+        console.error('Sign out error:', error);
+        alert('Failed to sign out. Please try again.');
+      });
     } else {
-      // Use redirectToSignIn() to avoid needing UI component bundle dependencies
-      await clerk.redirectToSignIn();
+      // Sign in
+      Clerk.openSignIn().catch(error => {
+        console.error('Sign in error:', error);
+        alert('Failed to open sign in. Please try again.');
+      });
     }
   } catch (error) {
     console.error('Clerk authentication error:', error);
-    alert('Authentication error. Please check your console.');
+    alert('Authentication error. Please check your Clerk configuration.');
   }
 };
 
 /**
  * Update Clerk UI based on auth state
- * 
  * @function
  */
 function updateClerkUI() {
   const button = document.getElementById('clerkSignInBtn');
   const buttonText = document.getElementById('clerkButtonText');
   const userInfo = document.getElementById('clerkUserInfo');
-  const clerk = window.Clerk;
-
-  const isSignedIn = clerk && clerk.user;
-  window.clerkState.isSignedIn = !!isSignedIn;
-  window.clerkState.user = clerk ? clerk.user : null;
-
+  
   if (button && buttonText) {
-    if (isSignedIn && clerk.user) {
+    if (window.clerkState.isSignedIn && window.clerkState.user) {
       buttonText.textContent = 'Sign Out';
       if (userInfo) {
-        userInfo.textContent = `Signed in as: ${clerk.user.primaryEmailAddress?.emailAddress || clerk.user.emailAddresses?.[0]?.emailAddress || 'User'}`;
+        userInfo.textContent = `Signed in as: ${window.clerkState.user.emailAddresses[0]?.emailAddress || 'User'}`;
         userInfo.style.display = 'block';
       }
     } else {
@@ -707,58 +681,75 @@ function updateClerkUI() {
 
 /**
  * Initialize Clerk authentication
- * 
  * @function
  */
 async function initClerk() {
   try {
-    let retries = 0;
-    while (!window.Clerk && retries < 30) {
-      await new Promise(res => setTimeout(res, 100));
-      retries++;
-    }
-
-    if (!window.Clerk) {
-      console.warn('Clerk script not loaded from CDN.');
+    const publishableKey = window.HydrogenConfig?.CLERK_PUBLISHABLE_KEY;
+    
+    if (!publishableKey || publishableKey === 'pk_test_YOUR_CLERK_PUBLISHABLE_KEY_HERE') {
+      console.warn('Clerk publishable key not configured. Authentication will be disabled.');
+      // Button stays visible but will show warning when clicked
       return;
     }
-
-    const clerk = window.Clerk;
-
-    if (!clerk.isReady()) {
-      await clerk.load();
-    }
-
+    
+    // Load Clerk SDK
+    await Clerk.load({ publishableKey: publishableKey });
     console.log('Clerk SDK loaded successfully');
-
-    updateClerkUI();
-
-    clerk.addListener(({ user, session }) => {
-      window.clerkState.isSignedIn = !!user;
-      window.clerkState.user = user || null;
+    
+    // Check current user/session - Clerk.user and Clerk.session are available after load
+    const user = Clerk.user;
+    const session = Clerk.session;
+    
+    if (user) {
+      window.clerkState.isSignedIn = true;
+      window.clerkState.user = user;
       window.clerkState.token = session?.token || null;
+      console.log('User signed in:', user.emailAddresses?.[0]?.emailAddress);
+    } else {
+      window.clerkState.isSignedIn = false;
+      window.clerkState.user = null;
+      window.clerkState.token = null;
+      console.log('No user signed in');
+    }
+    
+    // Listen for auth state changes
+    Clerk.addListener(({ user, session }) => {
+      if (user) {
+        window.clerkState.isSignedIn = true;
+        window.clerkState.user = user;
+        window.clerkState.token = session?.token || null;
+        console.log('User signed in via listener:', user.emailAddresses?.[0]?.emailAddress);
+      } else {
+        window.clerkState.isSignedIn = false;
+        window.clerkState.user = null;
+        window.clerkState.token = null;
+        console.log('User signed out via listener');
+      }
       updateClerkUI();
     });
-
+    
+    // Initial UI update
+    updateClerkUI();
+    
     console.log('Clerk authentication initialized successfully');
   } catch (error) {
     console.error('Failed to initialize Clerk:', error);
+    // Button stays visible even on error
   }
 }
 
 /**
  * Get current Clerk token for API calls
- * 
  * @function
- * 
  * @returns {Promise<string|null>} The auth token or null
  */
 async function getClerkToken() {
-  if (!window.Clerk || !window.Clerk.session) {
+  if (!window.clerkState.isSignedIn) {
     return null;
   }
   try {
-    const token = await window.Clerk.session.getToken();
+    const token = await Clerk.session.getToken();
     return token || window.clerkState.token;
   } catch (error) {
     console.error('Failed to get Clerk token:', error);
@@ -772,7 +763,6 @@ async function getClerkToken() {
 
 /**
  * Initialize the application
- * 
  * @function
  */
 window.initApp = function() {
