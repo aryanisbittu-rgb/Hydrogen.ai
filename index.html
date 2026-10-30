@@ -248,7 +248,7 @@ mjx-container svg { max-width:100%; }
           <select id="styleInput" name="styleInput" class="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs">
             <option value="Mixed" selected>Mixed</option>
             <option value="Word Problems">Word Problems</option>
-            <option value="Calculation">Calculation</option>
+            <option style="font-family:inherit" value="Calculation">Calculation</option>
             <option value="Conceptual">Conceptual</option>
           </select>
         </div>
@@ -283,8 +283,14 @@ mjx-container svg { max-width:100%; }
 <!-- Load configuration first -->
 <script src="js/config.js"></script>
 
-<!-- Clerk Authentication SDK -->
-<script src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@4/dist/clerk.browser.js"></script>
+<!-- Clerk Authentication SDK (Line 346: Paste your pk_test_... key below) -->
+<script 
+  async 
+  crossorigin="anonymous" 
+  data-clerk-publishable-key="pk_test_cHJvdmVuLWhlcm9uLTg4NjMuY2xlcmsuYWNjb3VudHMuZGV2JA"
+  src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@latest/dist/clerk.browser.js"
+  type="text/javascript">
+</script>
 
 <!-- Load utility functions -->
 <script src="js/utils.js"></script>
