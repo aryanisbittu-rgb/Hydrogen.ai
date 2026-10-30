@@ -194,8 +194,18 @@ window.fetchWithRetry = async function(url, options = {}, retriesLeft = window.H
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), CONFIG.REQUEST_TIMEOUT_MS);
     
+    // Add Clerk authentication token if available
+    const headers = { ...options.headers || {} };
+    if (typeof window.getClerkToken === 'function') {
+      const token = await window.getClerkToken();
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+    }
+    
     const response = await fetch(url, {
       ...options,
+      headers: headers,
       signal: controller.signal
     });
     
