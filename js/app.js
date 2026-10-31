@@ -607,31 +607,43 @@ window.handleTutorForm = async function(e) {
 // SUPABASE AUTHENTICATION
 // ============================================
 
+window.supabaseState = {
+  isSignedIn: false,
+  user: null
+};
+
 /**
  * Initialize Supabase authentication
  * @function
  */
 async function initSupabase() {
   try {
-    const supabaseUrl = window.HydrogenConfig?.SUPABASE_URL;
-    const supabaseKey = window.HydrogenConfig?.SUPABASE_ANON_KEY;
+    const CONFIG = window.HydrogenConfig;
+    const supabaseUrl = CONFIG?.SUPABASE_URL;
+    const supabaseKey = CONFIG?.SUPABASE_ANON_KEY;
     
-    if (!supabaseUrl || !supabaseKey) {
-      console.warn('Supabase URL or anon key not configured. Authentication will be limited.');
+    if (!supabaseUrl || !supabaseKey || supabaseUrl.includes('YOUR_ACTUAL_SUPABASE')) {
+      console.warn('Supabase URL or anon key not configured. Authentication will be disabled.');
       return;
     }
     
-    // Supabase client is already initialized in utils.js
-    // Just set up auth state listener here
     if (window.supabase) {
-      window.supabase.auth.onAuthStateChange((event, session) => {
+      // Create client instance globally on window.supabaseClient
+      window.supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
+      
+      // Get initial session
+      const { data: { session } } = await window.supabaseClient.auth.getSession();
+      updateAuthUI(session);
+
+      // Set up auth state listener
+      window.supabaseClient.auth.onAuthStateChange((event, session) => {
         console.log('Supabase auth state change:', event);
-        updateAuthUI();
+        updateAuthUI(session);
       });
       
-      // Initial UI update
-      updateAuthUI();
       console.log('Supabase authentication initialized successfully');
+    } else {
+      console.warn('Supabase CDN SDK not loaded.');
     }
   } catch (error) {
     console.error('Failed to initialize Supabase:', error);
@@ -639,20 +651,22 @@ async function initSupabase() {
 }
 
 /**
- * Update UI based on auth state
+ * Update UI based on auth state (matches DOM IDs in index.html)
  * @function
  */
-async function updateAuthUI() {
-  const button = document.getElementById('supabaseAuthBtn');
-  const buttonText = document.getElementById('authButtonText');
-  const userInfo = document.getElementById('userInfo');
+function updateAuthUI(session) {
+  const buttonText = document.getElementById('clerkButtonText');
+  const userInfo = document.getElementById('clerkUserInfo');
   
-  if (button && buttonText) {
-    const session = await window.getSupabaseSession();
-    if (session) {
+  const user = session ? session.user : null;
+  window.supabaseState.isSignedIn = !!session;
+  window.supabaseState.user = user;
+
+  if (buttonText) {
+    if (session && user) {
       buttonText.textContent = 'Sign Out';
       if (userInfo) {
-        userInfo.textContent = `Signed in as: ${session.user.email || 'User'}`;
+        userInfo.textContent = `Signed in as: ${user.email || 'User'}`;
         userInfo.style.display = 'block';
       }
     } else {
@@ -664,6 +678,41 @@ async function updateAuthUI() {
     }
   }
 }
+
+/**
+ * Handle Sign In / Sign Out Click (triggers on onclick="handleClerkAuth()" from HTML)
+ * @function
+ */
+window.handleClerkAuth = async function() {
+  const client = window.supabaseClient;
+
+  if (!client) {
+    alert('Sign in failed: Supabase not initialized. Please verify your SUPABASE_URL and SUPABASE_ANON_KEY in js/config.js.');
+    return;
+  }
+
+  try {
+    const { data: { session } } = await client.auth.getSession();
+
+    if (session) {
+      // Sign out
+      await client.auth.signOut();
+      window.location.reload();
+    } else {
+      // Sign in via Google OAuth
+      const { error } = await client.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: window.location.origin
+        }
+      });
+      if (error) throw error;
+    }
+  } catch (error) {
+    console.error('Supabase authentication error:', error);
+    alert('Authentication error: ' + error.message);
+  }
+};
 
 // ============================================
 // INITIALIZATION
