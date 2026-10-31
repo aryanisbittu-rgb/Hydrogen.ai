@@ -5,6 +5,22 @@
  * @module app
  */
 
+// Safety fallback for helper selector if utils.js hasn't loaded it yet
+if (typeof window.$ !== 'function') {
+  window.$ = function(id) { return document.getElementById(id); };
+}
+
+// Safety fallback for global application state
+window.HydrogenState = window.HydrogenState || {
+  currentMeta: null,
+  currentProblems: [],
+  viewMode: 'worksheet',
+  chatHistory: [],
+  tutorBusy: false,
+  tutorError: '',
+  isGenerating: false
+};
+
 // ============================================
 // UI TOGGLE FUNCTIONS
 // ============================================
@@ -13,54 +29,62 @@ window.openModal = function() {
   const state = window.HydrogenState;
   
   if (state.currentMeta) {
-    $('topicInput').value = state.currentMeta.topic;
-    $('gradeInput').value = state.currentMeta.grade;
-    $('difficultyInput').value = state.currentMeta.difficulty;
-    $('worksheetTypeInput').value = state.currentMeta.type;
-    $('numProblemsInput').value = state.currentMeta.num;
+    if ($('topicInput')) $('topicInput').value = state.currentMeta.topic;
+    if ($('gradeInput')) $('gradeInput').value = state.currentMeta.grade;
+    if ($('difficultyInput')) $('difficultyInput').value = state.currentMeta.difficulty;
+    if ($('worksheetTypeInput')) $('worksheetTypeInput').value = state.currentMeta.type;
+    if ($('numProblemsInput')) $('numProblemsInput').value = state.currentMeta.num;
   }
   
   window.toggleSidebar(false);
   const modal = $('modalOverlay');
-  modal.classList.remove('hidden');
-  modal.setAttribute('aria-hidden', 'false');
-  
-  const firstFocusable = modal.querySelector('[autofocus], input, select, button');
-  if (firstFocusable) {
-    firstFocusable.focus();
+  if (modal) {
+    modal.classList.remove('hidden');
+    modal.setAttribute('aria-hidden', 'false');
+    
+    const firstFocusable = modal.querySelector('[autofocus], input, select, button');
+    if (firstFocusable) {
+      firstFocusable.focus();
+    }
   }
   
-  document.querySelector('main').setAttribute('aria-hidden', 'true');
+  const mainContent = document.querySelector('main');
+  if (mainContent) mainContent.setAttribute('aria-hidden', 'true');
 };
 
 window.closeModal = function() {
   const modal = $('modalOverlay');
-  modal.classList.add('hidden');
-  modal.setAttribute('aria-hidden', 'true');
+  if (modal) {
+    modal.classList.add('hidden');
+    modal.setAttribute('aria-hidden', 'true');
+  }
   
   const newButton = document.querySelector('[onclick="openModal()"]');
   if (newButton) {
     newButton.focus();
   }
   
-  document.querySelector('main').setAttribute('aria-hidden', 'false');
+  const mainContent = document.querySelector('main');
+  if (mainContent) mainContent.setAttribute('aria-hidden', 'false');
 };
 
 window.setTopic = function(t) {
-  $('topicInput').value = t;
+  if ($('topicInput')) $('topicInput').value = t;
 };
 
 window.toggleSidebar = function(force) {
   const sidebar = $('sidebar');
   const backdrop = $('sidebarBackdrop');
+  if (!sidebar) return;
+  
   const isCurrentlyOpen = !sidebar.classList.contains('-translate-x-full');
   const shouldOpen = force !== undefined ? force : !isCurrentlyOpen;
   
   sidebar.classList.toggle('-translate-x-full', !shouldOpen);
-  backdrop.classList.toggle('hidden', !shouldOpen);
+  if (backdrop) backdrop.classList.toggle('hidden', !shouldOpen);
   
   sidebar.setAttribute('aria-hidden', !shouldOpen);
-  backdrop.setAttribute('aria-hidden', shouldOpen);
+  if (backdrop) backdrop.setAttribute('aria-hidden', shouldOpen);
   
   const menuButton = document.querySelector('[onclick="toggleSidebar()"]');
   if (menuButton) {
@@ -70,7 +94,9 @@ window.toggleSidebar = function(force) {
 
 window.toggleTutor = function(force) {
   const drawer = $('tutorDrawer');
-  const isCurrentlyOpen = drawer.classList.contains('translate-x-full');
+  if (!drawer) return;
+  
+  const isCurrentlyOpen = !drawer.classList.contains('translate-x-full');
   const shouldOpen = force !== undefined ? force : !isCurrentlyOpen;
   
   drawer.classList.toggle('translate-x-full', !shouldOpen);
@@ -81,15 +107,16 @@ window.toggleTutor = function(force) {
     tutorButton.setAttribute('aria-expanded', shouldOpen);
   }
   
+  const mainContent = document.querySelector('main');
   if (shouldOpen) {
     window.renderChat();
     const input = $('tutorInput');
     if (input) {
       input.focus();
-      document.querySelector('main').setAttribute('aria-hidden', 'true');
+      if (mainContent) mainContent.setAttribute('aria-hidden', 'true');
     }
   } else {
-    document.querySelector('main').setAttribute('aria-hidden', 'false');
+    if (mainContent) mainContent.setAttribute('aria-hidden', 'false');
   }
 };
 
@@ -99,6 +126,7 @@ window.toggleTutor = function(force) {
 
 window.toggleSolution = function(btn) {
   const box = btn.nextElementSibling;
+  if (!box) return;
   const hidden = box.classList.toggle('hidden');
   btn.textContent = hidden ? '› Show solution' : '‹ Hide solution';
   btn.setAttribute('aria-expanded', !hidden);
@@ -111,11 +139,14 @@ window.switchView = function(mode) {
   const on = "px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-100 text-slate-900";
   const off = "px-3 py-1.5 text-xs font-medium rounded-lg text-slate-500";
   
-  $('viewWorksheetBtn').className = mode === 'worksheet' ? on : off;
-  $('viewSolutionsBtn').className = mode === 'solutions' ? on : off;
-  
-  $('viewWorksheetBtn').setAttribute('aria-pressed', mode === 'worksheet');
-  $('viewSolutionsBtn').setAttribute('aria-pressed', mode === 'solutions');
+  if ($('viewWorksheetBtn')) {
+    $('viewWorksheetBtn').className = mode === 'worksheet' ? on : off;
+    $('viewWorksheetBtn').setAttribute('aria-pressed', mode === 'worksheet');
+  }
+  if ($('viewSolutionsBtn')) {
+    $('viewSolutionsBtn').className = mode === 'solutions' ? on : off;
+    $('viewSolutionsBtn').setAttribute('aria-pressed', mode === 'solutions');
+  }
   
   document.querySelectorAll('.solution-box').forEach(b => {
     b.classList.toggle('hidden', mode === 'worksheet');
@@ -154,13 +185,13 @@ window.printSheet = function(withAnswers) {
 window.applyMeta = function(m) {
   const t = m ? m.topic : 'Worksheets';
   
-  $('sheetMainTitle').textContent = t;
-  $('paperTitle').textContent = m ? m.topic : 'Untitled';
-  $('paperBadgeType').textContent = m ? `HYDROGEN ${m.type.toUpperCase()}` : 'HYDROGEN WORKSHEET';
-  $('sheetMetaSubtitle').textContent = m ? `Grade ${m.grade} • ${m.num} questions • ${m.type}` : 'Generate a worksheet to get started';
-  $('paperGrade').textContent = m ? `Grade ${m.grade} • ${m.difficulty} ${m.type}` : '';
-  $('sidebarSessionTitle').textContent = m ? m.topic : 'No worksheet yet';
-  $('sidebarSessionSub').textContent = m ? `Grade ${m.grade} • ${m.type}` : 'Create one to begin';
+  if ($('sheetMainTitle')) $('sheetMainTitle').textContent = t;
+  if ($('paperTitle')) $('paperTitle').textContent = m ? m.topic : 'Untitled';
+  if ($('paperBadgeType')) $('paperBadgeType').textContent = m ? `HYDROGEN ${m.type.toUpperCase()}` : 'HYDROGEN WORKSHEET';
+  if ($('sheetMetaSubtitle')) $('sheetMetaSubtitle').textContent = m ? `Grade ${m.grade} • ${m.num} questions • ${m.type}` : 'Generate a worksheet to get started';
+  if ($('paperGrade')) $('paperGrade').textContent = m ? `Grade ${m.grade} • ${m.difficulty} ${m.type}` : '';
+  if ($('sidebarSessionTitle')) $('sidebarSessionTitle').textContent = m ? m.topic : 'No worksheet yet';
+  if ($('sidebarSessionSub')) $('sidebarSessionSub').textContent = m ? `Grade ${m.grade} • ${m.type}` : 'Create one to begin';
 };
 
 window.renderWorksheet = function(problems) {
@@ -170,7 +201,7 @@ window.renderWorksheet = function(problems) {
   
   c.innerHTML = '';
   
-  if (!problems.length) {
+  if (!problems || !problems.length) {
     c.innerHTML = `<div class="text-center text-sm text-slate-400 py-16" role="status" aria-live="polite">No worksheet yet. Tap <b>+ New</b> to generate one.</div>`;
     return;
   }
@@ -200,15 +231,20 @@ window.renderWorksheet = function(problems) {
       d.setAttribute('role', 'article');
       d.setAttribute('aria-label', `Question ${i + 1}`);
       
+      const badgeHtml = typeof window.badgesHTML === 'function' ? window.badgesHTML(item) : '';
+      const probText = typeof window.renderProblemHTML === 'function' ? window.renderProblemHTML(item.problem_text) : item.problem_text;
+      const diag = typeof window.buildDiagram === 'function' ? window.buildDiagram(item.diagram || (typeof window.inferSolid === 'function' && window.inferSolid(item.problem_text)) || (typeof window.inferDiagram === 'function' && window.inferDiagram(item.problem_text))) : '';
+      const sol = typeof window.clean === 'function' ? window.clean(item.solution_text) : item.solution_text;
+
       d.innerHTML = `
         <div class="flex items-start space-x-3.5 text-sm md:text-base leading-relaxed">
           <span class="font-mono font-bold text-slate-400 text-sm select-none" aria-label="Question number">${String(i + 1).padStart(2, '0')}</span>
           <div class="flex-1 min-w-0">
-            ${window.badgesHTML(item)}
-            <div class="q-text text-slate-900 overflow-x-auto" aria-label="Question text">${window.renderProblemHTML(item.problem_text)}</div>
+            ${badgeHtml}
+            <div class="q-text text-slate-900 overflow-x-auto" aria-label="Question text">${probText}</div>
           </div>
         </div>
-        ${window.buildDiagram(item.diagram || window.inferSolid(item.problem_text) || window.inferDiagram(item.problem_text))}
+        ${diag}
         <div class="h-16 rounded-xl border border-dashed border-slate-300" role="textbox" aria-label="Space for answer"></div>
         <div class="no-print-btn">
           <button 
@@ -218,14 +254,14 @@ window.renderWorksheet = function(problems) {
             aria-expanded="false"
             aria-label="Show solution for question ${i + 1}"
           >› Show solution</button>
-          <div class="solution-box hidden mt-2.5 p-3.5 bg-slate-50 rounded-xl border-l-2 border-brand-600 text-xs text-slate-800 leading-relaxed font-mono overflow-x-auto" aria-label="Solution">${window.clean(item.solution_text)}</div>
+          <div class="solution-box hidden mt-2.5 p-3.5 bg-slate-50 rounded-xl border-l-2 border-brand-600 text-xs text-slate-800 leading-relaxed font-mono overflow-x-auto" aria-label="Solution">${sol}</div>
         </div>`;
       
       c.appendChild(d);
     });
     
     window.switchView(state.viewMode);
-    window.typeset(c);
+    if (typeof window.typeset === 'function') window.typeset(c);
     c.setAttribute('aria-busy', 'false');
   }, 100);
 };
@@ -241,7 +277,7 @@ window.showGenError = function(err) {
   if (err.name === 'AbortError') {
     msg = "The server took too long to respond. Please try again.";
   } else if (err instanceof TypeError) {
-    msg = `Couldn't reach the server at ${CONFIG.BACKEND_URL}. This could be due to CORS restrictions or the server being down.`;
+    msg = `Couldn't reach the server at ${CONFIG?.BACKEND_URL || 'backend'}. This could be due to CORS restrictions or the server being down.`;
   } else if (err.status === 429) {
     msg = "Too many requests. Please wait a moment and try again.";
   } else if (err.status >= 500) {
@@ -250,12 +286,12 @@ window.showGenError = function(err) {
   
   const box = $('genError');
   if (box) {
-    box.innerHTML = window.escapeHtml(msg) + 
+    box.innerHTML = (typeof window.escapeHtml === 'function' ? window.escapeHtml(msg) : msg) + 
       ' <button type="button" onclick="loadSample()" class="underline font-semibold hover:text-brand-600">Load a sample worksheet instead</button>';
     box.classList.remove('hidden');
   }
   
-  window.showToast(msg, 'error');
+  if (typeof window.showToast === 'function') window.showToast(msg, 'error');
 };
 
 window.loadSample = function() {
@@ -285,8 +321,10 @@ window.loadSample = function() {
   window.renderWorksheet(state.currentProblems);
   window.closeModal();
   
-  window.store(CONFIG.STORE_KEY, { meta: state.currentMeta, problems: state.currentProblems });
-  window.showToast('Sample worksheet loaded!', 'success');
+  if (typeof window.store === 'function') {
+    window.store(CONFIG?.STORE_KEY || 'hydrogen.sheet.v2', { meta: state.currentMeta, problems: state.currentProblems });
+  }
+  if (typeof window.showToast === 'function') window.showToast('Sample worksheet loaded!', 'success');
 };
 
 window.handleGenerateForm = async function(e) {
@@ -295,33 +333,36 @@ window.handleGenerateForm = async function(e) {
   const CONFIG = window.HydrogenConfig;
   if (state.isGenerating) return;
   
-  const num = Math.min(15, Math.max(1, parseInt($('numProblemsInput').value) || 10));
+  const num = Math.min(15, Math.max(1, parseInt($('numProblemsInput')?.value) || 10));
   const meta = {
-    topic: $('topicInput').value.trim(),
-    grade: parseInt($('gradeInput').value),
-    difficulty: $('difficultyInput').value,
-    type: $('worksheetTypeInput').value,
+    topic: $('topicInput')?.value.trim() || 'Math Review',
+    grade: parseInt($('gradeInput')?.value) || 10,
+    difficulty: $('difficultyInput')?.value || 'Medium',
+    type: $('worksheetTypeInput')?.value || 'Assignment',
     num
   };
   
-  const style = $('styleInput').value;
+  const style = $('styleInput')?.value || 'Mixed';
   const btn = $('generateBtn');
   
-  $('genError').classList.add('hidden');
+  if ($('genError')) $('genError').classList.add('hidden');
   state.isGenerating = true;
-  btn.disabled = true;
-  btn.setAttribute('aria-busy', 'true');
-  btn.textContent = "Generating...";
+  if (btn) {
+    btn.disabled = true;
+    btn.setAttribute('aria-busy', 'true');
+    btn.textContent = "Generating...";
+  }
   
   const slowTimer = setTimeout(() => {
-    btn.textContent = "Waking server… up to a minute";
-  }, CONFIG.SLOW_RESPONSE_MS);
+    if (btn) btn.textContent = "Waking server… up to a minute";
+  }, CONFIG?.SLOW_RESPONSE_MS || 6000);
   
   const ctrl = new AbortController();
-  const killTimer = setTimeout(() => ctrl.abort(), CONFIG.REQUEST_TIMEOUT_MS);
+  const killTimer = setTimeout(() => ctrl.abort(), CONFIG?.REQUEST_TIMEOUT_MS || 90000);
   
   try {
-    const res = await window.fetchWithRetry(CONFIG.API_ENDPOINT, {
+    const fetchFunc = window.fetchWithRetry || fetch;
+    const res = await fetchFunc(CONFIG?.API_ENDPOINT || 'https://my-math.onrender.com/generate', {
       method: 'POST',
       signal: ctrl.signal,
       headers: { 'Content-Type': 'application/json' },
@@ -345,22 +386,28 @@ window.handleGenerateForm = async function(e) {
     
     window.applyMeta(meta);
     window.renderWorksheet(state.currentProblems);
-    window.store(CONFIG.STORE_KEY, { meta, problems: state.currentProblems });
+    if (typeof window.store === 'function') {
+      window.store(CONFIG?.STORE_KEY || 'hydrogen.sheet.v2', { meta, problems: state.currentProblems });
+    }
     window.closeModal();
-    window.showToast(`Worksheet generated: ${num} problems on ${meta.topic}`, 'success');
+    if (typeof window.showToast === 'function') window.showToast(`Worksheet generated: ${num} problems on ${meta.topic}`, 'success');
   } catch (err) {
     window.showGenError(err);
-    btn.disabled = false;
-    btn.setAttribute('aria-busy', 'false');
-    btn.textContent = "Generate Sheet";
+    if (btn) {
+      btn.disabled = false;
+      btn.setAttribute('aria-busy', 'false');
+      btn.textContent = "Generate Sheet";
+    }
   } finally {
     clearTimeout(killTimer);
     clearTimeout(slowTimer);
     state.isGenerating = false;
-    btn.disabled = false;
-    btn.setAttribute('aria-busy', 'false');
-    if (btn.textContent.includes('Waking') || btn.textContent.includes('Generating')) {
-      btn.textContent = "Generate Sheet";
+    if (btn) {
+      btn.disabled = false;
+      btn.setAttribute('aria-busy', 'false');
+      if (btn.textContent.includes('Waking') || btn.textContent.includes('Generating')) {
+        btn.textContent = "Generate Sheet";
+      }
     }
   }
 };
@@ -386,9 +433,11 @@ window.renderChat = function() {
   );
   
   state.chatHistory.forEach(m => {
+    const escaped = typeof window.escapeHtml === 'function' ? window.escapeHtml(m.content) : m.content;
+    const cleaned = typeof window.clean === 'function' ? window.clean(m.content) : m.content;
     html += m.role === 'user'
-      ? bubble('bg-brand-600 text-white ml-6', window.escapeHtml(m.content))
-      : bubble('bg-slate-100 text-slate-800 mr-6', window.clean(m.content));
+      ? bubble('bg-brand-600 text-white ml-6', escaped)
+      : bubble('bg-slate-100 text-slate-800 mr-6', cleaned);
   });
   
   if (state.tutorBusy) {
@@ -396,14 +445,14 @@ window.renderChat = function() {
   }
   
   if (state.tutorError) {
-    html += bubble('bg-red-50 text-red-700 border border-red-100', window.escapeHtml(state.tutorError));
+    html += bubble('bg-red-50 text-red-700 border border-red-100', typeof window.escapeHtml === 'function' ? window.escapeHtml(state.tutorError) : state.tutorError);
   }
   
   const box = $('chatMessages');
   if (box) {
     box.innerHTML = html;
     box.scrollTop = box.scrollHeight;
-    window.typeset(box);
+    if (typeof window.typeset === 'function') window.typeset(box);
   }
 };
 
@@ -414,6 +463,7 @@ window.handleTutorForm = async function(e) {
   if (state.tutorBusy) return;
   
   const input = $('tutorInput');
+  if (!input) return;
   const msg = input.value.trim();
   if (!msg) return;
   
@@ -431,11 +481,12 @@ window.handleTutorForm = async function(e) {
   window.renderChat();
   
   try {
-    const res = await window.fetchWithRetry(CONFIG.TUTOR_ENDPOINT, {
+    const fetchFunc = window.fetchWithRetry || fetch;
+    const res = await fetchFunc(CONFIG?.TUTOR_ENDPOINT || 'https://my-math.onrender.com/tutor', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        grade_level: state.currentMeta ? state.currentMeta.grade : parseInt($('gradeInput').value),
+        grade_level: state.currentMeta ? state.currentMeta.grade : parseInt($('gradeInput')?.value || 10),
         messages: state.chatHistory,
         worksheet_context: window.worksheetContext()
       })
@@ -447,12 +498,12 @@ window.handleTutorForm = async function(e) {
     }
     
     state.chatHistory.push({ role: 'model', content: data.reply });
-    window.showToast('Tutor response received', 'success');
+    if (typeof window.showToast === 'function') window.showToast('Tutor response received', 'success');
   } catch (err) {
     state.chatHistory.pop();
     input.value = msg;
     state.tutorError = "Tutor error: " + err.message;
-    window.showToast(state.tutorError, 'error');
+    if (typeof window.showToast === 'function') window.showToast(state.tutorError, 'error');
   } finally {
     state.tutorBusy = false;
     if (sendBtn) {
@@ -464,7 +515,7 @@ window.handleTutorForm = async function(e) {
 };
 
 // ============================================
-// SUPABASE AUTHENTICATION (GITHUB PROVIDER)
+// SUPABASE AUTHENTICATION (GITHUB)
 // ============================================
 
 window.supabaseState = {
@@ -501,8 +552,8 @@ async function initSupabase() {
 }
 
 function updateAuthUI(session) {
-  const buttonText = document.getElementById('clerkButtonText');
-  const userInfo = document.getElementById('clerkUserInfo');
+  const buttonText = $('clerkButtonText');
+  const userInfo = $('clerkUserInfo');
   
   const user = session ? session.user : null;
   window.supabaseState.isSignedIn = !!session;
@@ -525,7 +576,6 @@ function updateAuthUI(session) {
   }
 }
 
-// Global handler called from index.html button
 window.handleClerkAuth = async function() {
   const client = window.supabaseClient;
 
@@ -541,7 +591,15 @@ window.handleClerkAuth = async function() {
       await client.auth.signOut();
       window.location.reload();
     } else {
-      openAuthModal();
+      if (typeof window.openAuthModal === 'function') {
+        window.openAuthModal();
+      } else {
+        const { error } = await client.auth.signInWithOAuth({
+          provider: 'github',
+          options: { redirectTo: window.location.origin }
+        });
+        if (error) throw error;
+      }
     }
   } catch (error) {
     console.error('Auth error:', error);
@@ -555,20 +613,20 @@ window.handleClerkAuth = async function() {
 
 window.initApp = function() {
   const state = window.HydrogenState;
-  const CONFIG = window.HydrogenConfig;
+  const CONFIG = window.HydrogenConfig || {};
   
   initSupabase();
   
   (function () {
     const g = $('gradeInput');
-    if (g) {
+    if (g && g.children.length === 0) {
       for (let i = 1; i <= 12; i++) {
         g.insertAdjacentHTML('beforeend', `<option value="${i}" ${i === 10 ? 'selected' : ''}>Grade ${i}</option>`);
       }
     }
   })();
   
-  const saved = window.load(CONFIG.STORE_KEY);
+  const saved = typeof window.load === 'function' ? window.load(CONFIG.STORE_KEY || 'hydrogen.sheet.v2') : null;
   if (saved && saved.meta && Array.isArray(saved.problems) && saved.problems.length) {
     state.currentMeta = saved.meta;
     state.currentProblems = saved.problems;
@@ -579,21 +637,23 @@ window.initApp = function() {
   window.renderChat();
   
   const generatorForm = $('generatorForm');
-  if (generatorForm) {
+  if (generatorForm && !generatorForm.dataset.listenerAttached) {
     generatorForm.addEventListener('submit', window.handleGenerateForm);
+    generatorForm.dataset.listenerAttached = 'true';
   }
   
   const tutorForm = $('tutorForm');
-  if (tutorForm) {
+  if (tutorForm && !tutorForm.dataset.listenerAttached) {
     tutorForm.addEventListener('submit', window.handleTutorForm);
+    tutorForm.dataset.listenerAttached = 'true';
   }
   
-  window.setupKeyboardShortcuts();
-  window.initAccessibility();
+  if (typeof window.setupKeyboardShortcuts === 'function') window.setupKeyboardShortcuts();
+  if (typeof window.initAccessibility === 'function') window.initAccessibility();
   
   window.addEventListener('load', () => {
     if (window.MathJax && MathJax.startup) {
-      MathJax.startup.promise.then(() => window.typeset()).catch(() => {});
+      MathJax.startup.promise.then(() => { if (typeof window.typeset === 'function') window.typeset(); }).catch(() => {});
     }
   });
   
