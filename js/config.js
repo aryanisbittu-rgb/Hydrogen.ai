@@ -34,8 +34,9 @@ const CONFIG = {
   SLOW_RESPONSE_MS: 6000,
   RATE_LIMIT_DELAY_MS: 1000,
   MAX_RETRIES: 2,
-  // Supabase Authentication - Add your Supabase URL and anon key here
-  // Get them from: https://app.supabase.com/project/_/settings/api
+  
+  // Supabase Authentication Configuration
+  // Replace these placeholders with your actual keys from Supabase Dashboard -> Project Settings -> API
   SUPABASE_URL: 'https://fzetnskhzuydxtyiiqst.supabase.co',
   SUPABASE_ANON_KEY: 'sb_publishable_UDan49aXehDAz0TRFZ0ifQ_GBGrLnhH',
 };
